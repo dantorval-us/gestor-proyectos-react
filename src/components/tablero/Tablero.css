@@ -1,0 +1,26 @@
+.tablero-container {
+  border: solid 1px #ccc;
+  min-height: 80vh;
+  min-width: 180px;
+  max-width: fit-content;
+  background: whitesmoke;
+  border-radius: 4px;
+  overflow: hidden;
+  display: block;
+  margin: 10px;
+  padding: 10px;
+}
+
+.columnas-container {
+  max-width: 100%;
+  min-width: 50vw;
+  min-height: 70vh;
+  padding: 0 0 0 1.5rem;
+  border: solid 1px #ccc;
+  display: flex;
+  flex-direction: row;
+  background: white;
+  border-radius: 4px;
+  overflow: hidden;
+  cursor: grab;
+}

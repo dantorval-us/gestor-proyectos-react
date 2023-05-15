@@ -1,0 +1,9 @@
+:root {
+  --fondo: #ebeeef;
+  --primary-color: #3f525c;
+  --secondary-color: #4d7bb8;
+  --danger-color: #c70000;
+}
+
+html, body { height: 100%; background: var(--fondo) !important; }
+body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }

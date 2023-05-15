@@ -1,5 +1,6 @@
 import React from "react";
 import Columna from "../columna/Columna";
+import "./Tablero.css"
 
 function Tablero() {
   return (

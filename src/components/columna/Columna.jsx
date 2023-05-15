@@ -1,5 +1,6 @@
 import React from "react";
 import Tarea from "../tarea/Tarea";
+import "./Columna.css"
 
 function Columna() {
   return (

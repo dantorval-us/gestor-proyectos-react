@@ -1,0 +1,25 @@
+h2 {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.columna-container {
+  text-align: center;
+  border: solid 1px #ccc;
+  min-height: 100%;
+  width: 222px;
+  background: white;
+  border-radius: 4px;
+  overflow: hidden;
+  margin: 0 10px 0 10px;
+  padding: 0 10px 0 10px;
+  vertical-align: top;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.tareas-container {
+  flex-grow: 1;
+}

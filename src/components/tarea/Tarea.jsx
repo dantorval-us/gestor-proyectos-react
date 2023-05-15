@@ -1,10 +1,11 @@
 import React from "react";
+import "./Tarea.css"
 
 function Tarea() {
   return (
-    <p className="tarjeta">
+    <h3 className="tarjeta">
       nombreTarea mock
-    </p>
+    </h3>
   )
 }
 
