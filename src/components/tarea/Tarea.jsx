@@ -1,11 +1,22 @@
-import React from "react";
 import "./Tarea.css"
+import { Draggable } from "react-beautiful-dnd";
 
-function Tarea() {
+// function Tarea() {
+//   return (
+//     <h3 className="tarjeta">
+//       nombreTarea mock
+//     </h3>
+//   )
+// }
+
+function Tarea(props) {
   return (
-    <h3 className="tarjeta">
-      nombreTarea mock
-    </h3>
+      <p>asd</p>
+
+
+      // <h3 className='tarjeta'>
+      //     nMock
+      // </h3>
   )
 }
 
