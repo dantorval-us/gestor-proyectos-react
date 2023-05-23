@@ -1,23 +1,21 @@
 import "./Tarea.css"
 import { Draggable } from "react-beautiful-dnd";
 
-// function Tarea() {
-//   return (
-//     <h3 className="tarjeta">
-//       nombreTarea mock
-//     </h3>
-//   )
-// }
-
-function Tarea(props) {
+const Tarea = ({ tarea, index }) => {
   return (
-      <p>asd</p>
-
-
-      // <h3 className='tarjeta'>
-      //     nMock
-      // </h3>
-  )
-}
+    <Draggable draggableId={tarea.id} index={index}>
+      {(provided) => (
+        <div
+          className="task-item"
+          {...provided.draggableProps}
+          {...provided.dragHandleProps}
+          ref={provided.innerRef}
+        >
+          {tarea.nombre}
+        </div>
+      )}
+    </Draggable>
+  );
+};
 
 export default Tarea;
