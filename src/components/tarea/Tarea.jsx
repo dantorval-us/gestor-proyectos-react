@@ -6,10 +6,10 @@ const Tarea = ({ tarea, index }) => {
     <Draggable draggableId={tarea.id} index={index}>
       {(provided) => (
         <div
-          className="task-item"
           {...provided.draggableProps}
           {...provided.dragHandleProps}
           ref={provided.innerRef}
+          className="tarjeta"
         >
           {tarea.nombre}
         </div>

@@ -17,10 +17,11 @@
   min-height: 70vh;
   padding: 0 0 0 1.5rem;
   border: solid 1px #ccc;
-  display: flex;
+  display: inline-flex;
   flex-direction: row;
   background: white;
   border-radius: 4px;
   overflow: hidden;
   cursor: grab;
 }
+

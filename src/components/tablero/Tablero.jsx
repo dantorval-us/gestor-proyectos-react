@@ -1,11 +1,12 @@
 import "./Tablero.css"
 import { useState } from "react";
-import { DragDropContext, Droppable } from 'react-beautiful-dnd'
+import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd'
 import Columna from "../columna/Columna";
 import { columnasMock, tareasMock } from "../../mockData";
 
 function Tablero() {
 
+  // TAREAS
   const getTareasByColumnaId = (columnaId) => {
     return tareasMock.filter((tarea) => tarea.columna === columnaId);
   };
@@ -21,8 +22,20 @@ function Tablero() {
     }, {})
   );
 
+  const reorder = (list, startIndex, endIndex) => {
+    const result = [...list];
+    const [removed] = result.splice(startIndex, 1);
+    result.splice(endIndex, 0, removed);
+  
+    return result;
+  };
+  
+  // COLUMNAS
+  const [columnas, setColumnas] = useState(columnasMock)
+
+  // onDragEnd comun 
   const onDragEnd = (result) => {
-    const { source, destination } = result;
+    const {source, destination} = result;
 
     if (!destination) {
       return;
@@ -35,68 +48,87 @@ function Tablero() {
       return;
     }
 
-    const columnaOrigen = columnasData[source.droppableId];
-    const tareaArrastrada = columnaOrigen.tareas[source.index];
-
-    if (source.droppableId === destination.droppableId) {
-      const nuevasTareas = Array.from(columnaOrigen.tareas);
-      nuevasTareas.splice(source.index, 1);
-      nuevasTareas.splice(destination.index, 0, tareaArrastrada);
-
-      const nuevasColumnasData = {
-        ...columnasData,
-        [source.droppableId]: {
-          ...columnaOrigen,
-          tareas: nuevasTareas,
-        },
-      };
-
-      setColumnasData(nuevasColumnasData);
-    } else {
-      const columnaDestino = columnasData[destination.droppableId];
-
-      const nuevasTareasOrigen = Array.from(columnaOrigen.tareas);
-      nuevasTareasOrigen.splice(source.index, 1);
-
-      const nuevasTareasDestino = Array.from(columnaDestino.tareas);
-      nuevasTareasDestino.splice(destination.index, 0, tareaArrastrada);
-
-      const nuevasColumnasData = {
-        ...columnasData,
-        [source.droppableId]: {
-          ...columnaOrigen,
-          tareas: nuevasTareasOrigen,
-        },
-        [destination.droppableId]: {
-          ...columnaDestino,
-          tareas: nuevasTareasDestino,
-        },
-      };
-
-      setColumnasData(nuevasColumnasData);
+    // arrastro columna
+    if(result.type === "columna") {
+      setColumnas(provColumnas => reorder(provColumnas, source.index, destination.index))
     }
-  };
+
+    // arrastro tarea
+    if(result.type === "tarea") {
+
+      const columnaOrigen = columnasData[source.droppableId];
+      const tareaArrastrada = columnaOrigen.tareas[source.index];
+
+      if (source.droppableId === destination.droppableId) {
+        const nuevasTareas = Array.from(columnaOrigen.tareas);
+        nuevasTareas.splice(source.index, 1);
+        nuevasTareas.splice(destination.index, 0, tareaArrastrada);
+
+        const nuevasColumnasData = {
+          ...columnasData,
+          [source.droppableId]: {
+            ...columnaOrigen,
+            tareas: nuevasTareas,
+          },
+        };
+
+        setColumnasData(nuevasColumnasData);
+      } else {
+        const columnaDestino = columnasData[destination.droppableId];
+
+        const nuevasTareasOrigen = Array.from(columnaOrigen.tareas);
+        nuevasTareasOrigen.splice(source.index, 1);
+
+        const nuevasTareasDestino = Array.from(columnaDestino.tareas);
+        nuevasTareasDestino.splice(destination.index, 0, tareaArrastrada);
+
+        const nuevasColumnasData = {
+          ...columnasData,
+          [source.droppableId]: {
+            ...columnaOrigen,
+            tareas: nuevasTareasOrigen,
+          },
+          [destination.droppableId]: {
+            ...columnaDestino,
+            tareas: nuevasTareasDestino,
+          },
+        };
+
+        setColumnasData(nuevasColumnasData);
+      }
+    }
+  }
 
   return (
     <div className="tablero-container">
-    <h1>nombreProyecto mock</h1>
+      <h1>nombreProyecto mock</h1>
       <DragDropContext onDragEnd={onDragEnd}>
         <Droppable droppableId="columnas" direction="horizontal" type="columna">
-          {(provided) => (
-            <div
-              ref={provided.innerRef}
-              {...provided.droppableProps}
+          {(droppableProvided) => (
+            <div 
+              {...droppableProvided.droppableProps}
+              ref={droppableProvided.innerRef}
               className="columnas-container"
             >
-              {columnasMock.map((columna, index) => (
-                <Columna
-                  key={columna.id}
-                  columna={columna}
-                  tareas={columnasData[columna.id].tareas}
-                  index={index}
-                />
+              {columnas.map((columna, index) => (
+                <Draggable draggableId={columna.id} key={columna.id} index={index}>
+                  {(draggableProvided) => (
+                    <div
+                      {...draggableProvided.draggableProps}
+                      ref={draggableProvided.innerRef}
+                      {...draggableProvided.dragHandleProps}
+                    >
+                      <Columna 
+                        key={columna.id}
+                        columna={columna} 
+                        tareas={columnasData[columna.id].tareas}
+                        index={index}
+                      />
+                    </div>
+                  )}
+                </Draggable>
               ))}
-              {provided.placeholder}
+              {droppableProvided.placeholder}
             </div>
           )}
         </Droppable>

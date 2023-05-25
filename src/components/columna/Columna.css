@@ -23,35 +23,3 @@ h2 {
 .tareas-container {
   flex-grow: 1;
 }
-
-/* Otros */
-h1 {
-  font-size: 3rem;
-  color: #2d3233;
-}
-
-.task-container {
-  margin: 0;
-  list-style: none;
-  padding: 5px;
-  border-radius: 5px;
-
-  display: inline-flex;
-  flex-direction: column;
-}
-
-.task-item {
-  color: rgb(250, 82, 52);
-  box-shadow: 0px 2px 4px #4a4c4e;
-  border-radius: 5px;
-  padding: 0.3em 0.5em;
-  background-color: whitesmoke;
-  text-align: center;
-  margin: 5px;
-  border: 2px solid transparent;
-}
-
-.task-item:focus {
-  outline: none;
-  border: 2px solid #4a9af5;
-}
