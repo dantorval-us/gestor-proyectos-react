@@ -1,10 +1,28 @@
 import "./Tablero.css"
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd'
 import Columna from "../columna/Columna";
 import { columnasMock, tareasMock } from "../../mockData";
 
+import { db } from "../../firebase";
+import { collection, getDocs } from "firebase/firestore";
+
+
 function Tablero() {
+
+  /* Prueba conexion a BD */
+  useEffect(() => {
+    console.log("obteniendo datos..."),
+    getColumnas();
+  }, []);
+
+  const getColumnas = async () => {
+    const querySnapshot = await getDocs(collection(db, "columnas"));
+    querySnapshot.forEach((doc) => {
+      console.log(`${doc.id} => ${doc.data().nombre}`);
+    });
+  }
+  /* FIN Prueba conexion a BD */
 
   // TAREAS
   const getTareasByColumnaId = (columnaId) => {
