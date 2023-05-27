@@ -2,29 +2,71 @@ import "./Tablero.css"
 import { useEffect, useState } from "react";
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd'
 import Columna from "../columna/Columna";
-import { columnasMock, tareasMock } from "../../mockData";
+//import { columnasMock, tareasMock } from "../../mockData";
 
 import { db } from "../../firebase";
-import { collection, getDocs } from "firebase/firestore";
+import { addDoc, collection, getDocs, orderBy, query, onSnapshot, doc } from "firebase/firestore";
 
 
 function Tablero() {
 
   /* Prueba conexion a BD */
+  const [columnas, setColumnas] = useState([])
+  const columnaRef = collection(db, 'columnas');
+
+  const initialStateValues = {
+    nombre: "",
+    posicion: "",
+    proyecto: ""
+  }
+
+  const [columnas2, setColumnas2] = useState(initialStateValues);
+
   useEffect(() => {
-    console.log("obteniendo datos..."),
     getColumnas();
   }, []);
 
   const getColumnas = async () => {
-    const querySnapshot = await getDocs(collection(db, "columnas"));
-    querySnapshot.forEach((doc) => {
-      console.log(`${doc.id} => ${doc.data().nombre}`);
-    });
+    const q = query(columnaRef, orderBy("posicion"))
+    onSnapshot(q, (snapshot) => 
+    setColumnas(snapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id }))))
   }
+
+  /*FUNCIONAL* 
+  const getColumnas = async () => {
+    const columnas = [];
+
+    const q = query(columnaRef, orderBy("posicion"))
+    const querySnapshot = await getDocs(q);
+
+    querySnapshot.forEach((doc) => {
+      columnas.push({id:doc.id, ...doc.data()})
+    });
+    setColumnas(columnas)
+  }
+  */
+
+  const addColumna = async (columna) => {
+    await addDoc(columnaRef, columna);
+    console.log("Añade la columna:", columna)
+  }
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    //console.log("Columna '" + columnas2.nombre + "' añadida")
+    addColumna(columnas2);
+    setColumnas2({...initialStateValues})
+  }
+
+  const handleInput = (e) => {
+    const {value} = e.target;
+    setColumnas2({...columnas2, nombre: value})
+  }
+
   /* FIN Prueba conexion a BD */
 
   // TAREAS
+  /* 
   const getTareasByColumnaId = (columnaId) => {
     return tareasMock.filter((tarea) => tarea.columna === columnaId);
   };
@@ -39,7 +81,9 @@ function Tablero() {
       return data;
     }, {})
   );
+  */
 
+  // COLUMNAS
   const reorder = (list, startIndex, endIndex) => {
     const result = [...list];
     const [removed] = result.splice(startIndex, 1);
@@ -47,9 +91,9 @@ function Tablero() {
   
     return result;
   };
-  
+
   // COLUMNAS
-  const [columnas, setColumnas] = useState(columnasMock)
+  // const [columnas, setColumnas] = useState(columnasMock)
 
   // onDragEnd comun 
   const onDragEnd = (result) => {
@@ -72,6 +116,7 @@ function Tablero() {
     }
 
     // arrastro tarea
+    /*
     if(result.type === "tarea") {
 
       const columnaOrigen = columnasData[source.droppableId];
@@ -115,11 +160,12 @@ function Tablero() {
         setColumnasData(nuevasColumnasData);
       }
     }
+    */
   }
 
   return (
     <div className="tablero-container">
-      <h1>nombreProyecto mock</h1>
+      <h1 style={{color:"red"}}>nombreProyecto mock</h1>
       <DragDropContext onDragEnd={onDragEnd}>
         <Droppable droppableId="columnas" direction="horizontal" type="columna">
           {(droppableProvided) => (
@@ -139,7 +185,7 @@ function Tablero() {
                       <Columna 
                         key={columna.id}
                         columna={columna} 
-                        tareas={columnasData[columna.id].tareas}
+                        //tareas={columnasData[columna.id].tareas}
                         index={index}
                       />
                     </div>
@@ -151,6 +197,10 @@ function Tablero() {
           )}
         </Droppable>
       </DragDropContext>
+      <form onSubmit={handleSubmit}>
+        <input type="text" value={columnas2.nombre} onChange={handleInput}/>
+        <button>Añadir columna</button>
+      </form>
     </div>
   );
 }
