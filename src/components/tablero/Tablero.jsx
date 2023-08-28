@@ -5,7 +5,7 @@ import Columna from "../columna/Columna";
 //import { columnasMock, tareasMock } from "../../mockData";
 
 import { db } from "../../firebase";
-import { addDoc, collection, getDocs, orderBy, query, onSnapshot, doc } from "firebase/firestore";
+import { addDoc, collection, orderBy, query, onSnapshot } from "firebase/firestore";
 
 
 function Tablero() {
@@ -20,7 +20,7 @@ function Tablero() {
     proyecto: ""
   }
 
-  const [columnas2, setColumnas2] = useState(initialStateValues);
+  const [columnasAdd, setColumnasAdd] = useState(initialStateValues);
 
   useEffect(() => {
     getColumnas();
@@ -53,14 +53,14 @@ function Tablero() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    //console.log("Columna '" + columnas2.nombre + "' añadida")
-    addColumna(columnas2);
-    setColumnas2({...initialStateValues})
+    if(!columnasAdd.nombre.trim()) { return; }
+    addColumna(columnasAdd);
+    setColumnasAdd({...initialStateValues})
   }
 
   const handleInput = (e) => {
     const {value} = e.target;
-    setColumnas2({...columnas2, nombre: value})
+    setColumnasAdd({...columnasAdd, nombre: value})
   }
 
   /* FIN Prueba conexion a BD */
@@ -198,7 +198,7 @@ function Tablero() {
         </Droppable>
       </DragDropContext>
       <form onSubmit={handleSubmit}>
-        <input type="text" value={columnas2.nombre} onChange={handleInput}/>
+        <input type="text" value={columnasAdd.nombre} onChange={handleInput}/>
         <button>Añadir columna</button>
       </form>
     </div>
