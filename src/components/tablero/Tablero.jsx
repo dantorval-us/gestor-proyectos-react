@@ -1,18 +1,19 @@
 import "./Tablero.css"
 import { useEffect, useState } from "react";
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd'
+import { useParams } from 'react-router-dom';
 import Columna from "../columna/Columna";
 //import { columnasMock, tareasMock } from "../../mockData";
 
 import { db } from "../../firebase";
-import { addDoc, collection, orderBy, query, onSnapshot } from "firebase/firestore";
+import { addDoc, getDocs, collection, orderBy, query, where, limit, onSnapshot, doc, updateDoc, getDoc, runTransaction } from "firebase/firestore";
 
 
 function Tablero() {
 
   /* Prueba conexion a BD */
-  const [columnas, setColumnas] = useState([])
-  const columnaRef = collection(db, 'columnas');
+  const [columnas, setColumnas] = useState([]);
+  const columnasRef = collection(db, 'columnas');
 
   const initialStateValues = {
     nombre: "",
@@ -20,14 +21,48 @@ function Tablero() {
     proyecto: ""
   }
 
+  const proyecto = useParams().id;
+
   const [columnasAdd, setColumnasAdd] = useState(initialStateValues);
 
   useEffect(() => {
     getColumnas();
+
+    //getLastPosicion(); //
   }, []);
 
+  const updatePosicionColumna = (id, posPrevia, posNueva) => {
+    const columnaRef = doc(db,  `columnas/${id}`);
+    ////
+    const colsProyecto = query(columnasRef, where('proyecto', '==', proyecto));
+    ////
+
+    runTransaction(db, async (transaction) => {
+      // actualiza columnas intermedias
+      if(posPrevia < posNueva) {
+        for(let i=posPrevia+1; i<=posNueva; i++ ) {
+          const q = query(colsProyecto, where("posicion", "==", i+1))
+          const querySnapshot = await getDocs(q);
+          querySnapshot.forEach(async (doc) => {
+            transaction.update(doc.ref, { posicion: i });
+          })
+        }
+      } else {
+        for(let i=posPrevia-1; i>=posNueva; i-- ) {
+          const q = query(colsProyecto, where("posicion", "==", i+1))
+          const querySnapshot = await getDocs(q);
+          querySnapshot.forEach(async (doc) => {
+            transaction.update(doc.ref, { posicion: i+2 });
+          })
+        }
+      }
+      // actualiza columna seleccionada
+      transaction.update(columnaRef, { posicion: posNueva + 1});
+    });
+  }
+
   const getColumnas = async () => {
-    const q = query(columnaRef, orderBy("posicion"))
+    const q = query(columnasRef, where("proyecto", "==", proyecto), orderBy("posicion"))
     onSnapshot(q, (snapshot) => 
     setColumnas(snapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id }))))
   }
@@ -36,7 +71,7 @@ function Tablero() {
   const getColumnas = async () => {
     const columnas = [];
 
-    const q = query(columnaRef, orderBy("posicion"))
+    const q = query(columnasRef, orderBy("posicion"))
     const querySnapshot = await getDocs(q);
 
     querySnapshot.forEach((doc) => {
@@ -47,8 +82,32 @@ function Tablero() {
   */
 
   const addColumna = async (columna) => {
-    await addDoc(columnaRef, columna);
-    console.log("Añade la columna:", columna)
+    columna.posicion = await getPosicion();
+    columna.proyecto = proyecto;
+    await addDoc(columnasRef, columna);
+  }
+
+  const getPosicion = async () => {
+    const pos = await getNumColumnas();
+    if (pos == 0) {
+      return 1;
+    } else {
+      return await getLastPosicion() + 1;
+    }
+  }
+
+  const getLastPosicion = async () => {
+    const q = query(columnasRef, where("proyecto", "==", proyecto), orderBy("posicion", "desc"), limit(1));
+    const querySnapshot = await getDocs(q);
+    const mayorPosicion = querySnapshot.docs[0].data().posicion;
+    return mayorPosicion;
+  }
+
+  const getNumColumnas = async () => {
+    const q = query(columnasRef, where("proyecto", "==", proyecto));
+    const querySnapshot = await getDocs(q);
+    const numColumnas = querySnapshot.size;
+    return numColumnas;
   }
 
   const handleSubmit = async (e) => {
@@ -109,11 +168,13 @@ function Tablero() {
     ) {
       return;
     }
-
+    
     // arrastro columna
     if(result.type === "columna") {
       setColumnas(provColumnas => reorder(provColumnas, source.index, destination.index))
+      updatePosicionColumna(result.draggableId, source.index, destination.index);
     }
+
 
     // arrastro tarea
     /*
@@ -182,6 +243,7 @@ function Tablero() {
                       ref={draggableProvided.innerRef}
                       {...draggableProvided.dragHandleProps}
                     >
+                      <div>{columna.id}</div>
                       <Columna 
                         key={columna.id}
                         columna={columna} 
