@@ -1,12 +1,12 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, /*useEffect, useState*/ } from "react";
 import {
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword,
+  // createUserWithEmailAndPassword,
+  // signInWithEmailAndPassword,
   signOut,
-  onAuthStateChanged,
+  // onAuthStateChanged,
   GoogleAuthProvider,
   signInWithPopup,
-  sendPasswordResetEmail,
+  // sendPasswordResetEmail,
 } from "firebase/auth";
 import { auth } from "../firebase";
 

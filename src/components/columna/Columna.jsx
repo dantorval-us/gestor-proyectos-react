@@ -1,18 +1,30 @@
 import "./Columna.css"
-import { collection, deleteDoc, doc, getDoc, getDocs, query, updateDoc, where } from "firebase/firestore";
-//import Tarea from "../tarea/Tarea";
-//import { Droppable } from 'react-beautiful-dnd'
+import { addDoc, collection, deleteDoc, doc, getDoc, getDocs, onSnapshot, orderBy, query, updateDoc, where } from "firebase/firestore";
+import Tarea from "../tarea/Tarea";
+import { Droppable } from 'react-beautiful-dnd'
 
 import { db } from "../../firebase";
 import { useEffect, useRef, useState } from "react";
 
-const Columna = ({ columna, tareas }) => {
+const Columna = ({ columna }) => {
+
+  const [tareas, setTareas] = useState([]);
+  const tareasRef = collection(db, 'tareas');
 
   const [modoEdicion, setModoEdicion] = useState(false);
   const [nombre, setNombre] = useState(columna.nombre);
   const inputRef = useRef(null);
 
+  const initialStateValuesTareas = {
+    columna: "",
+    nombreTarea: "",
+    posicion: ""
+  }
+
+  const [tareasAdd, setTareasAdd] = useState(initialStateValuesTareas);
+
   useEffect(() => {
+    getTareas();
     if (modoEdicion && inputRef.current) {
       inputRef.current.focus();
     }
@@ -62,6 +74,45 @@ const Columna = ({ columna, tareas }) => {
     await deleteDoc(columnaRef);
   };
 
+
+  /* TAREAS */
+
+  const addTarea = async (tarea) => {
+    tarea.posicion = await getPosicion();
+    tarea.columna = columna.id;
+    await addDoc(tareasRef, tarea);
+  }
+
+  const getPosicion = async () => {
+    let pos = await getNumTareas() + 1;
+    return pos;
+  }
+
+  const getNumTareas = async () => {
+    const q = query(tareasRef, where("columna", "==", columna.id));
+    const querySnapshot = await getDocs(q);
+    const numColumnas = querySnapshot.size;
+    return numColumnas;
+  }
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!tareasAdd.nombreTarea.trim()) { return; };
+    addTarea(tareasAdd);
+    setTareasAdd({...initialStateValuesTareas});
+  }
+
+  const handleInput = async (e) => {
+    const {value} = e.target;
+    setTareasAdd({...tareasAdd, nombreTarea: value})
+  }
+
+  const getTareas = async () => {
+    const q = query(tareasRef, where("columna", "==", columna.id), orderBy("posicion")); 
+    onSnapshot(q, (snapshot) => 
+    setTareas(snapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id }))))
+  }
+
   return (
     <div className="columna-container">
 
@@ -85,6 +136,16 @@ const Columna = ({ columna, tareas }) => {
       <button onClick={cambiarModoEdicion}>renombrar</button>
       <button onClick={() => deleteColumna(columna.id)}>X</button>
 
+      {/* Temporal. No aplica DnD */}
+      {tareas.map((tarea, index) => (
+        <Tarea 
+          key={tarea.id}
+          tarea={tarea}
+          index={index}
+        />
+        ))}
+      {/*  */}
+
       {/* <Droppable droppableId={columna.id} type="tarea">
         {(provided) => (
           <div 
@@ -99,6 +160,16 @@ const Columna = ({ columna, tareas }) => {
           </div>
         )}
       </Droppable> */}
+
+      {/* Temporal */}
+      <div style={{ position: "absolute", bottom: 0 }}>
+        <form onSubmit={handleSubmit}>
+          <input type="text" value={tareasAdd.nombreTarea} onChange={handleInput}/>
+          <button>Añadir Tarea</button>
+        </form>
+      </div>
+      {/*  */}
+
     </div>
   );
 };

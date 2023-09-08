@@ -6,12 +6,10 @@ import Columna from "../columna/Columna";
 //import { columnasMock, tareasMock } from "../../mockData";
 
 import { db } from "../../firebase";
-import { addDoc, getDocs, collection, orderBy, query, where, limit, onSnapshot, doc, updateDoc, getDoc, runTransaction } from "firebase/firestore";
-
+import { addDoc, getDocs, collection, orderBy, query, where, onSnapshot, doc, getDoc, runTransaction } from "firebase/firestore";
 
 function Tablero() {
 
-  /* Prueba conexion a BD */
   const [columnas, setColumnas] = useState([]);
   const columnasRef = collection(db, 'columnas');
 
@@ -22,14 +20,21 @@ function Tablero() {
   }
 
   const proyecto = useParams().id;
+  const [nombreProyecto, setNombreProyecto] = useState('');
 
   const [columnasAdd, setColumnasAdd] = useState(initialStateValues);
 
   useEffect(() => {
+    getNombreProyecto();
     getColumnas();
-
-    //getLastPosicion(); //
   }, []);
+
+  const getNombreProyecto = async () => {
+    const proyectoRef = doc(db, `proyectos/${proyecto}`);
+    const proyectoSnap = await getDoc(proyectoRef);
+    const nombre = proyectoSnap.data().nombre;
+    setNombreProyecto(nombre);
+  };
 
   const updatePosicionColumna = (id, posPrevia, posNueva) => {
     const columnaRef = doc(db,  `columnas/${id}`);
@@ -65,20 +70,6 @@ function Tablero() {
     setColumnas(snapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id }))))
   }
 
-  /*FUNCIONAL* 
-  const getColumnas = async () => {
-    const columnas = [];
-
-    const q = query(columnasRef, orderBy("posicion"))
-    const querySnapshot = await getDocs(q);
-
-    querySnapshot.forEach((doc) => {
-      columnas.push({id:doc.id, ...doc.data()})
-    });
-    setColumnas(columnas)
-  }
-  */
-
   const addColumna = async (columna) => {
     columna.posicion = await getPosicion();
     columna.proyecto = proyecto;
@@ -86,19 +77,8 @@ function Tablero() {
   }
 
   const getPosicion = async () => {
-    const pos = await getNumColumnas();
-    if (pos == 0) {
-      return 1;
-    } else {
-      return await getLastPosicion() + 1;
-    }
-  }
-
-  const getLastPosicion = async () => {
-    const q = query(columnasRef, where("proyecto", "==", proyecto), orderBy("posicion", "desc"), limit(1));
-    const querySnapshot = await getDocs(q);
-    const mayorPosicion = querySnapshot.docs[0].data().posicion;
-    return mayorPosicion;
+    let pos = await getNumColumnas() + 1;
+    return pos;
   }
 
   const getNumColumnas = async () => {
@@ -110,7 +90,7 @@ function Tablero() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if(!columnasAdd.nombre.trim()) { return; }
+    if (!columnasAdd.nombre.trim()) { return; }
     addColumna(columnasAdd);
     setColumnasAdd({...initialStateValues})
   }
@@ -120,7 +100,6 @@ function Tablero() {
     setColumnasAdd({...columnasAdd, nombre: value})
   }
 
-  /* FIN Prueba conexion a BD */
 
   // TAREAS
   /* 
@@ -140,7 +119,7 @@ function Tablero() {
   );
   */
 
-  // COLUMNAS
+  /* COLUMNAS */
   const reorder = (list, startIndex, endIndex) => {
     const result = [...list];
     const [removed] = result.splice(startIndex, 1);
@@ -149,7 +128,6 @@ function Tablero() {
     return result;
   };
 
-  // COLUMNAS
   // const [columnas, setColumnas] = useState(columnasMock)
 
   // onDragEnd comun 
@@ -224,7 +202,7 @@ function Tablero() {
 
   return (
     <div className="tablero-container">
-      <h1 style={{color:"red"}}>nombreProyecto mock</h1>
+      <h1>{ nombreProyecto }</h1>
       <DragDropContext onDragEnd={onDragEnd}>
         <Droppable droppableId="columnas" direction="horizontal" type="columna">
           {(droppableProvided) => (
