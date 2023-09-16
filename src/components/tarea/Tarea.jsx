@@ -4,7 +4,7 @@ import { Draggable } from "react-beautiful-dnd";
 import { db } from "../../firebase";
 import { useEffect, useRef, useState } from "react";
 
-const Tarea = ({ tarea, index }) => {
+const Tarea = ({ tarea, index, onTareaDrag }) => {
 
   const [modoEdicion, setModoEdicion] = useState(false);
   const [nombre, setNombre] = useState(tarea.nombreTarea);
@@ -62,6 +62,10 @@ const Tarea = ({ tarea, index }) => {
     await deleteDoc(tareaRef);
   }
 
+  const handleClickDrag = () => {
+    onTareaDrag(tarea.id);
+  };
+
   return (
     <Draggable draggableId={tarea.id} index={index}>
       {(provided) => (
@@ -70,6 +74,7 @@ const Tarea = ({ tarea, index }) => {
           {...provided.dragHandleProps}
           ref={provided.innerRef}
           className="tarjeta"
+          onMouseDown={handleClickDrag}
         >
           {!modoEdicion ?
             <p>{tarea.nombreTarea}</p>

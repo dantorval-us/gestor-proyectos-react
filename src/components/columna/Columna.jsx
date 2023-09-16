@@ -6,7 +6,7 @@ import { Droppable } from 'react-beautiful-dnd'
 import { db } from "../../firebase";
 import { useEffect, useRef, useState } from "react";
 
-const Columna = ({ columna }) => {
+const Columna = ({ columna, onTareaDrag }) => {
 
   const [tareas, setTareas] = useState([]);
   const tareasRef = collection(db, 'tareas');
@@ -136,17 +136,7 @@ const Columna = ({ columna }) => {
       <button onClick={cambiarModoEdicion}>renombrar</button>
       <button onClick={() => deleteColumna(columna.id)}>X</button>
 
-      {/* Temporal. No aplica DnD */}
-      {tareas.map((tarea, index) => (
-        <Tarea 
-          key={tarea.id}
-          tarea={tarea}
-          index={index}
-        />
-        ))}
-      {/*  */}
-
-      {/* <Droppable droppableId={columna.id} type="tarea">
+      <Droppable droppableId={columna.id} type="tarea">
         {(provided) => (
           <div 
             {...provided.droppableProps}
@@ -154,21 +144,24 @@ const Columna = ({ columna }) => {
             className="tareas-container"
           >
             {tareas.map((tarea, index) => (
-              <Tarea key={tarea.id} tarea={tarea} index={index}/>
+              <Tarea 
+                key={tarea.id} 
+                tarea={tarea} 
+                index={index}
+                onTareaDrag={onTareaDrag}
+              />
             ))}
             {provided.placeholder}
           </div>
         )}
-      </Droppable> */}
+      </Droppable>
 
-      {/* Temporal */}
       <div style={{ position: "absolute", bottom: 0 }}>
         <form onSubmit={handleSubmit}>
           <input type="text" value={tareasAdd.nombreTarea} onChange={handleInput}/>
           <button>Añadir Tarea</button>
         </form>
       </div>
-      {/*  */}
 
     </div>
   );

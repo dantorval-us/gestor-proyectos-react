@@ -3,12 +3,14 @@ import { useEffect, useState } from "react";
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd'
 import { useParams } from 'react-router-dom';
 import Columna from "../columna/Columna";
-//import { columnasMock, tareasMock } from "../../mockData";
 
 import { db } from "../../firebase";
-import { addDoc, getDocs, collection, orderBy, query, where, onSnapshot, doc, getDoc, runTransaction } from "firebase/firestore";
+import { addDoc, getDocs, collection, orderBy, query, where, onSnapshot, doc, getDoc, runTransaction, updateDoc } from "firebase/firestore";
 
 function Tablero() {
+  
+  const proyecto = useParams().id;
+  const [nombreProyecto, setNombreProyecto] = useState('');
 
   const [columnas, setColumnas] = useState([]);
   const columnasRef = collection(db, 'columnas');
@@ -19,10 +21,9 @@ function Tablero() {
     proyecto: ""
   }
 
-  const proyecto = useParams().id;
-  const [nombreProyecto, setNombreProyecto] = useState('');
-
   const [columnasAdd, setColumnasAdd] = useState(initialStateValues);
+
+  const [tareaDrag, setTareaDrag] = useState();
 
   useEffect(() => {
     getNombreProyecto();
@@ -100,24 +101,9 @@ function Tablero() {
     setColumnasAdd({...columnasAdd, nombre: value})
   }
 
-
-  // TAREAS
-  /* 
-  const getTareasByColumnaId = (columnaId) => {
-    return tareasMock.filter((tarea) => tarea.columna === columnaId);
+  const handleTareaClickDrag = (tareaId) => {
+    setTareaDrag(tareaId);
   };
-
-  const [columnasData, setColumnasData] = useState(
-    columnasMock.reduce((data, columna) => {
-      data[columna.id] = {
-        id: columna.id,
-        nombre: columna.nombre,
-        tareas: getTareasByColumnaId(columna.id),
-      };
-      return data;
-    }, {})
-  );
-  */
 
   /* COLUMNAS */
   const reorder = (list, startIndex, endIndex) => {
@@ -128,10 +114,8 @@ function Tablero() {
     return result;
   };
 
-  // const [columnas, setColumnas] = useState(columnasMock)
-
   // onDragEnd comun 
-  const onDragEnd = (result) => {
+  const onDragEnd = async (result) => {
     const {source, destination} = result;
 
     if (!destination) {
@@ -151,53 +135,24 @@ function Tablero() {
       updatePosicionColumna(result.draggableId, source.index, destination.index);
     }
 
-
-    // arrastro tarea
-    /*
+    // TODO: arrastro tarea
     if(result.type === "tarea") {
 
-      const columnaOrigen = columnasData[source.droppableId];
-      const tareaArrastrada = columnaOrigen.tareas[source.index];
+      const tareaRef = doc(db, `tareas/${tareaDrag}`);
 
-      if (source.droppableId === destination.droppableId) {
-        const nuevasTareas = Array.from(columnaOrigen.tareas);
-        nuevasTareas.splice(source.index, 1);
-        nuevasTareas.splice(destination.index, 0, tareaArrastrada);
+      await updateDoc(tareaRef, {
+        posicion: destination.index + 1,
+      });
 
-        const nuevasColumnasData = {
-          ...columnasData,
-          [source.droppableId]: {
-            ...columnaOrigen,
-            tareas: nuevasTareas,
-          },
-        };
+      if (source.droppableId !== destination.droppableId) {
+        await updateDoc(tareaRef, {
+          columna: destination.droppableId,
+        });
 
-        setColumnasData(nuevasColumnasData);
-      } else {
-        const columnaDestino = columnasData[destination.droppableId];
 
-        const nuevasTareasOrigen = Array.from(columnaOrigen.tareas);
-        nuevasTareasOrigen.splice(source.index, 1);
-
-        const nuevasTareasDestino = Array.from(columnaDestino.tareas);
-        nuevasTareasDestino.splice(destination.index, 0, tareaArrastrada);
-
-        const nuevasColumnasData = {
-          ...columnasData,
-          [source.droppableId]: {
-            ...columnaOrigen,
-            tareas: nuevasTareasOrigen,
-          },
-          [destination.droppableId]: {
-            ...columnaDestino,
-            tareas: nuevasTareasDestino,
-          },
-        };
-
-        setColumnasData(nuevasColumnasData);
       }
+
     }
-    */
   }
 
   return (
@@ -222,8 +177,8 @@ function Tablero() {
                       <Columna 
                         key={columna.id}
                         columna={columna} 
-                        //tareas={columnasData[columna.id].tareas}
                         index={index}
+                        onTareaDrag={handleTareaClickDrag}
                       />
                     </div>
                   )}
