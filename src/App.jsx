@@ -1,5 +1,5 @@
 import './App.css';
-import { Routes, Route, useNavigate, Link, Navigate } from 'react-router-dom';
+import { Routes, Route, useNavigate, Link, Navigate, useLocation } from 'react-router-dom';
 import { IoIosLogOut } from 'react-icons/io';
 import Dashboard from './components/dashboard/Dashboard';
 import Tablero from './components/tablero/Tablero';
@@ -23,7 +23,7 @@ function App() {
     navigate("/login");
   };
 
-  const isLoginPage = user ? false : true;
+  const isLoginPage = useLocation().pathname=="/login" ? true : false;
 
   return (
     <div className="App">

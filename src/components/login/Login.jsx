@@ -9,6 +9,7 @@ function Login() {
 
   const handleGoogleLogin = async () => {
     await loginWithGoogle();
+    localStorage.setItem('user', '...');
     navigate("/");
   }
 

@@ -12,7 +12,7 @@ function Dashboard() {
 
   useEffect(() => {
     getProyectos();
-  }, []);
+  }, [userId]);
 
   const getProyectos = async () => {
     const q = query(proyectosRef, where("usuario", "==", userId), orderBy("nombre"))
