@@ -3,6 +3,8 @@ import { collection, onSnapshot, orderBy, query, where } from "firebase/firestor
 import { useEffect, useState } from "react";
 import { Link } from 'react-router-dom';
 import { db } from "../../firebase";
+import Proyecto from "../proyecto/Proyecto";
+import NuevoProyecto from "../nuevo-proyecto/NuevoProyecto";
 
 function Dashboard() {
 
@@ -25,11 +27,11 @@ function Dashboard() {
       {proyectos.map((proyecto, index) => (
         <div key={proyecto.id}>
           <Link to={`/proyecto/${proyecto.id}`}>
-            {/* <Proyecto /> */}
-            {proyecto.nombre}
+            <Proyecto key={proyecto.id} proyecto={proyecto}/>
           </Link>
         </div>
       ))}
+      <NuevoProyecto />
     </div>
   );
 };
