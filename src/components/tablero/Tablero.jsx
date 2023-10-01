@@ -31,7 +31,27 @@ function Tablero() {
   // const [tareas, setTareas] = useState([]);
 
   const [tareas, setTareas] = useState([]);
+
+  const getTareasByColumnaId = (columnaId) => {
+    return tareas.filter((tarea) => tarea.columna === columnaId);
+  };
   
+  const [columnasData, setColumnasData] = useState({});
+
+  useEffect(() => {
+    const initialData = columnas.reduce((data, columna) => {
+      data[columna.id] = {
+        id: columna.id,
+        nombre: columna.nombre,
+        tareas: getTareasByColumnaId(columna.id),
+      };
+      return data;
+    }, {});
+    setColumnasData(initialData);
+  }, [columnas]);
+  console.log('columnas:', columnasData);
+
+
   const obtenerTareas = async () => {
     // console.log('columnas:', columnas);
     const idsDeColumnas = columnas.map((columna) => columna.id);
@@ -171,19 +191,44 @@ function Tablero() {
     // TODO: arrastro tarea
     if(result.type === "tarea") {
 
-      const tareaRef = doc(db, `tareas/${result.draggableId}`);
-
-      await updateDoc(tareaRef, {
-        posicion: destination.index + 1,
-      });
-
-      if (source.droppableId !== destination.droppableId) {
-        await updateDoc(tareaRef, {
-          columna: destination.droppableId,
-        });
+      //////////////////
+      const columnaOrigen = columnasData[source.droppableId];
+      const tareaArrastrada = columnaOrigen.tareas[source.index];
+      console.log('columnaOrigen:', columnaOrigen);
+      console.log('tareaArrastrada:', tareaArrastrada);
+    
 
 
+
+      // const columnaOrigen = source.droppableId;
+      // const tareaArrastrada = tareas.find((tarea) => tarea.id === result.draggableId);
+
+      // console.log('tareaArrastrada:', tareaArrastrada);
+      // console.log('source:', source);
+      // console.log('destination:', destination);
+
+      // console.log('_>', columnaOrigen);
+      
+      if (source.droppableId === destination.droppableId) {
         
+
+      }
+
+      //////////////////
+
+      // // // // // // // const tareaRef = doc(db, `tareas/${result.draggableId}`);
+
+      // // // // // // // await updateDoc(tareaRef, {
+      // // // // // // //   posicion: destination.index + 1,
+      // // // // // // // });
+
+      // // // // // // // if (source.droppableId !== destination.droppableId) {
+      // // // // // // //   await updateDoc(tareaRef, {
+      // // // // // // //     columna: destination.droppableId,
+      // // // // // // //   });
+
+
+
         ////
         // const tareaDrag = tareas.find((tarea) => tarea.id === result.draggableId);
 
@@ -237,7 +282,7 @@ function Tablero() {
         ////
 
 
-      }
+      // // // // // // // // }
     }
   }
 
