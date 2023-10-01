@@ -5,7 +5,8 @@ import {
   GoogleAuthProvider,
   signInWithPopup,
 } from "firebase/auth";
-import { auth } from "../firebase"
+import { auth, db } from "../firebase"
+import { collection, getDocs, onSnapshot, orderBy, query, where } from "firebase/firestore";
 
 export const authContext = createContext();
 
@@ -37,12 +38,38 @@ export function AuthProvider({ children }) {
     const googleProvider = new GoogleAuthProvider();
     return await signInWithPopup(auth, googleProvider);
   };
+
+  /////////////////////////
+  // const [tareas, setTareas] = useState(() => {
+  //   const tareasRef = collection(db, 'tareas');
+  //   const q = query(tareasRef); 
+  //   return onSnapshot(q, (snapshot) => 
+  //     setTareas(snapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id }))))
+  // });
+  
+  const getTareas = async () => {
+
+    const tareasRef = collection(db, 'tareas');
+    const q = query(tareasRef);
+
+    return new Promise((resolve, reject) => {
+      onSnapshot(q, (snapshot) => {
+        const tareasData = snapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
+        resolve(tareasData);
+      }, reject);
+    });
+  } 
+
+  /////////////////////////
   
   const logout = async () => signOut(auth);
   
   return (
-    <authContext.Provider value={{ loginWithGoogle, logout, user, setUser }}>
+    <authContext.Provider value={{ loginWithGoogle, logout, user, setUser, getTareas }}>
       {children}
+      {/*  */}
+        <button onClick={getTareas}>TEST context</button>
+      {/*  */}
     </authContext.Provider>
   );
   

@@ -77,7 +77,13 @@ const Tarea = ({ tarea, index, onTareaDrag }) => {
           onMouseDown={handleClickDrag}
         >
           {!modoEdicion ?
-            <p>{tarea.nombreTarea}</p>
+            <>
+              <p><strong>{tarea.nombreTarea}</strong></p> 
+              <div>
+                <p style={{color:"red"}}>{tarea.id}</p>
+                <p style={{color:"red"}}>Posicion: {tarea.posicion}</p>
+              </div>
+            </>
           :
             <>
               <input 

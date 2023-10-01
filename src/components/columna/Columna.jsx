@@ -118,8 +118,10 @@ const Columna = ({ columna, onTareaDrag }) => {
 
       {!modoEdicion ? 
         <h2 onDoubleClick={cambiarModoEdicion}>
-          {nombre} 
+          {nombre}
+          <p style={{color:"red", fontSize: "20px"}}>{columna.id}</p>
         </h2>
+        
       :
         <>
           <input

@@ -6,9 +6,10 @@ import Columna from "../columna/Columna";
 
 import { db } from "../../firebase";
 import { addDoc, getDocs, collection, orderBy, query, where, onSnapshot, doc, getDoc, runTransaction, updateDoc } from "firebase/firestore";
+import { useAuth } from "../../context/AuthContext";
 
 function Tablero() {
-  
+
   const proyecto = useParams().id;
   const [nombreProyecto, setNombreProyecto] = useState('');
 
@@ -23,12 +24,44 @@ function Tablero() {
 
   const [columnasAdd, setColumnasAdd] = useState(initialStateValues);
 
-  const [tareaDrag, setTareaDrag] = useState();
+  // const [tareaDrag, setTareaDrag] = useState();
+
+  ////////////
+  const { getTareas } = useAuth();
+  // const [tareas, setTareas] = useState([]);
+
+  const [tareas, setTareas] = useState([]);
+  
+  const obtenerTareas = async () => {
+    // console.log('columnas:', columnas);
+    const idsDeColumnas = columnas.map((columna) => columna.id);
+    // console.log('idsDeColumnas:', idsDeColumnas);
+
+    const tareasAll = await getTareas();
+    // console.log('TareasAll:', tareasAll);
+    
+    const tareasFiltradas = tareasAll.filter((tarea) => idsDeColumnas.includes(tarea.columna));
+    // console.log('tareasFiltradas:', tareasFiltradas);
+
+    setTareas(tareasFiltradas);
+    // console.log('TAREAS:', tareas);    
+  }
+  ////////////
 
   useEffect(() => {
     getNombreProyecto();
     getColumnas();
   }, []);
+
+  //////////
+  useEffect(() => {
+    obtenerTareas();
+  }, [columnas]);
+
+  useEffect(() => {
+    // console.log('TAREAS33333:', tareas);  
+  }, [tareas]);
+  //////////
 
   const getNombreProyecto = async () => {
     const proyectoRef = doc(db, `proyectos/${proyecto}`);
@@ -101,9 +134,9 @@ function Tablero() {
     setColumnasAdd({...columnasAdd, nombre: value})
   }
 
-  const handleTareaClickDrag = (tareaId) => {
-    setTareaDrag(tareaId);
-  };
+  // const handleTareaClickDrag = (tareaId) => {
+  //   setTareaDrag(tareaId);
+  // };
 
   /* COLUMNAS */
   const reorder = (list, startIndex, endIndex) => {
@@ -138,7 +171,7 @@ function Tablero() {
     // TODO: arrastro tarea
     if(result.type === "tarea") {
 
-      const tareaRef = doc(db, `tareas/${tareaDrag}`);
+      const tareaRef = doc(db, `tareas/${result.draggableId}`);
 
       await updateDoc(tareaRef, {
         posicion: destination.index + 1,
@@ -150,14 +183,75 @@ function Tablero() {
         });
 
 
-      }
+        
+        ////
+        // const tareaDrag = tareas.find((tarea) => tarea.id === result.draggableId);
 
+        // /* Devuelvo las tareas de la columna en la que suelto */
+        // console.log('Arrastro la tarea:', result.draggableId);
+        // const tareasColumna = tareas.filter((tarea) => result.destination.droppableId.includes(tarea.columna));
+        // console.log('A la columna:', result.destination.droppableId, tareasColumna);
+        
+        // /* Tomo las que tienen posicion igual o mayor */
+        // const tareasAfectadas = tareasColumna.filter((tarea) => tarea.posicion >= destination.index + 1)
+        // console.log('tareasAfectadas:', tareasAfectadas);
+
+        // /* Actualizo su posicion */
+        // const tareasActualizadas = tareas.map((tarea) => {
+        //   if (tareasAfectadas.includes(tarea)) {
+        //     // actualizo estado
+        //     tarea.posicion = tarea.posicion + 1; 
+        //     //actualizo BD
+        //     updateDoc(doc(db, `tareas/${tarea.id}`), {
+        //       posicion: tarea.posicion,
+        //     });
+        //   }
+        //   return tarea;
+        // });
+
+        // /* Resto 1 a la posicion de las tareas con posicion mayor que la tarea que saco de la columna */
+        // /* Devuelvo las tareas de la columna de la que la saco */
+        // console.log('Saco de la columna:', result.source.droppableId);
+        // const tareasColumnaAnterior = tareas.filter((tarea) => result.source.droppableId.includes(tarea.columna));
+        // console.log('tareasColumnaAnterior:', tareasColumnaAnterior);
+        // /* selecciono las que tienen posicion mayor y les resto 1 */
+        // const tareasAfectadasAnterior = tareasColumnaAnterior.filter((tarea) => tarea.posicion > source.index + 1)
+        // /* Actualizo su posicion */
+        // const tareasActualizadasAnterior = tareas.map((tarea) => {
+        //   if (tareasAfectadasAnterior.includes(tarea)) {
+        //     // actualizo estado
+        //     tarea.posicion = tarea.posicion - 1; 
+        //     //actualizo BD
+        //     updateDoc(doc(db, `tareas/${tarea.id}`), {
+        //       posicion: tarea.posicion,
+        //     });
+        //   }
+        //   return tarea;
+        // });
+
+
+        // console.log('TODAS Tareas actualizadas:', tareasActualizadas);
+        
+        // /* Modifico estado "tareas" para cambiar la columna de la tarea que arrastro*/
+        // tareaDrag.columna = destination.droppableId;
+        ////
+
+
+      }
     }
   }
+
+  ////////////
+  const test = () => {
+    console.log('TAREAS:', tareas);
+  }
+  ////////////
 
   return (
     <div className="tablero-container">
       <h1>{ nombreProyecto }</h1>
+      <button onClick={test}>TEST</button>
+      <button onClick={obtenerTareas}>TEST obtenerTareas</button>
       <DragDropContext onDragEnd={onDragEnd}>
         <Droppable droppableId="columnas" direction="horizontal" type="columna">
           {(droppableProvided) => (
@@ -178,7 +272,7 @@ function Tablero() {
                         key={columna.id}
                         columna={columna} 
                         index={index}
-                        onTareaDrag={handleTareaClickDrag}
+                        // onTareaDrag={handleTareaClickDrag}
                       />
                     </div>
                   )}
