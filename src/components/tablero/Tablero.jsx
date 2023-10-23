@@ -24,7 +24,7 @@ function Tablero() {
 
   const [columnasAdd, setColumnasAdd] = useState(initialStateValues);
 
-  // const [tareaDrag, setTareaDrag] = useState();
+  const [tareaDrag, setTareaDrag] = useState();
 
   ////////////
   const { getTareas } = useAuth();
@@ -37,20 +37,6 @@ function Tablero() {
   };
   
   const [columnasData, setColumnasData] = useState({});
-
-  useEffect(() => {
-    const initialData = columnas.reduce((data, columna) => {
-      data[columna.id] = {
-        id: columna.id,
-        nombre: columna.nombre,
-        tareas: getTareasByColumnaId(columna.id),
-      };
-      return data;
-    }, {});
-    setColumnasData(initialData);
-  }, [columnas]);
-  console.log('columnas:', columnasData);
-
 
   const obtenerTareas = async () => {
     // console.log('columnas:', columnas);
@@ -66,6 +52,25 @@ function Tablero() {
     setTareas(tareasFiltradas);
     // console.log('TAREAS:', tareas);    
   }
+
+  //////////
+  useEffect(() => {
+    const initialData = columnas.reduce((data, columna) => {
+      data[columna.id] = {
+        id: columna.id,
+        nombre: columna.nombre,
+        tareas: getTareasByColumnaId(columna.id),
+      };
+      return data;
+    }, {});
+    setColumnasData(initialData);
+  }, [tareas]);
+  //////////
+
+  useEffect(() => {
+    obtenerTareas();
+  }, [columnas]);
+
   ////////////
 
   useEffect(() => {
@@ -73,15 +78,7 @@ function Tablero() {
     getColumnas();
   }, []);
 
-  //////////
-  useEffect(() => {
-    obtenerTareas();
-  }, [columnas]);
-
-  useEffect(() => {
-    // console.log('TAREAS33333:', tareas);  
-  }, [tareas]);
-  //////////
+  
 
   const getNombreProyecto = async () => {
     const proyectoRef = doc(db, `proyectos/${proyecto}`);
@@ -154,9 +151,9 @@ function Tablero() {
     setColumnasAdd({...columnasAdd, nombre: value})
   }
 
-  // const handleTareaClickDrag = (tareaId) => {
-  //   setTareaDrag(tareaId);
-  // };
+  const handleTareaClickDrag = (tareaId) => {
+    setTareaDrag(tareaId);
+  };
 
   /* COLUMNAS */
   const reorder = (list, startIndex, endIndex) => {
@@ -194,22 +191,63 @@ function Tablero() {
       //////////////////
       const columnaOrigen = columnasData[source.droppableId];
       const tareaArrastrada = columnaOrigen.tareas[source.index];
-      console.log('columnaOrigen:', columnaOrigen);
-      console.log('tareaArrastrada:', tareaArrastrada);
-    
+      const tareaRef = doc(db, `tareas/${result.draggableId}`);
 
-
-
-      // const columnaOrigen = source.droppableId;
-      // const tareaArrastrada = tareas.find((tarea) => tarea.id === result.draggableId);
-
-      // console.log('tareaArrastrada:', tareaArrastrada);
-      // console.log('source:', source);
-      // console.log('destination:', destination);
-
-      // console.log('_>', columnaOrigen);
-      
       if (source.droppableId === destination.droppableId) {
+        console.log('misma columna');
+
+        const nuevasTareas = Array.from(columnaOrigen.tareas);
+        console.log('source.index:', source.index);
+        console.log('destination.index:', destination.index);
+        console.log('tareaArrastrada:', tareaArrastrada);
+
+        nuevasTareas.splice(source.index, 1);
+        nuevasTareas.splice(destination.index, 0, tareaArrastrada);
+
+        const nuevasColumnasData = {
+          ...columnasData,
+          [source.droppableId]: {
+            ...columnaOrigen,
+            tareas: nuevasTareas,
+          },
+        };
+        setColumnasData(nuevasColumnasData);
+
+        await updateDoc(tareaRef, {
+          posicion: destination.index + 1,
+        });
+        /* Devuelvo las tareas de la columna en la que suelto */
+        console.log('Arrastro la tarea:', result.draggableId);
+        const tareasColumna = tareas.filter((tarea) => result.destination.droppableId.includes(tarea.columna));
+        console.log('A la columna:', result.destination.droppableId, tareasColumna);
+        /* Excluyo la tarea arrastrada de la lista de tareas de la columna */
+        const tareasColumnaSinArrastrada = tareasColumna.filter((tarea) => tarea.id !== tareaArrastrada.id);
+        console.log('Tareas de la columna sin la tarea arrastrada:', tareasColumnaSinArrastrada);
+        /* Tomo las que tienen posicion igual o mayor */
+        const tareasAfectadas = tareasColumnaSinArrastrada.filter((tarea) => tarea.posicion >= destination.index + 1)
+        console.log('tareasAfectadas:', tareasAfectadas);
+        /* Actualizo su posicion */
+        const tareasActualizadas = tareas.map((tarea) => {
+          if (tareasAfectadas.includes(tarea)) {
+            // actualizo estado
+            tarea.posicion = tarea.posicion + 1; 
+            //actualizo BD
+            updateDoc(doc(db, `tareas/${tarea.id}`), {
+              posicion: tarea.posicion,
+            });
+          }
+          return tarea;
+        });
+        
+
+      } else { 
+        console.log('distinta columna');
+
+        await updateDoc(tareaRef, {
+          columna: destination.droppableId,
+          posicion: destination.index + 1,
+        });
+
         
 
       }
@@ -317,7 +355,7 @@ function Tablero() {
                         key={columna.id}
                         columna={columna} 
                         index={index}
-                        // onTareaDrag={handleTareaClickDrag}
+                        onTareaDrag={handleTareaClickDrag} //// eliminar todo lo relacionado con esto?
                       />
                     </div>
                   )}
