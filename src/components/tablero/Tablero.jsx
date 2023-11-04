@@ -197,9 +197,6 @@ function Tablero() {
         console.log('misma columna');
 
         const nuevasTareas = Array.from(columnaOrigen.tareas);
-        console.log('source.index:', source.index);
-        console.log('destination.index:', destination.index);
-        console.log('tareaArrastrada:', tareaArrastrada);
 
         nuevasTareas.splice(source.index, 1);
         nuevasTareas.splice(destination.index, 0, tareaArrastrada);
@@ -220,28 +217,37 @@ function Tablero() {
         console.log('Arrastro la tarea:', result.draggableId);
         const tareasColumna = tareas.filter((tarea) => result.destination.droppableId.includes(tarea.columna));
         console.log('A la columna:', result.destination.droppableId, tareasColumna);
+        
         /* Excluyo la tarea arrastrada de la lista de tareas de la columna */
         const tareasColumnaSinArrastrada = tareasColumna.filter((tarea) => tarea.id !== tareaArrastrada.id);
         console.log('Tareas de la columna sin la tarea arrastrada:', tareasColumnaSinArrastrada);
-        /* Tomo las que tienen posicion igual o mayor */
+        //Arrastro hacia abajo
+        console.log('origen:', source.index);
+        console.log('destino:', destination.index);
+        console.log('tareaArrastrada:', tareaArrastrada);
         const tareasAfectadas = tareasColumnaSinArrastrada.filter((tarea) => tarea.posicion >= destination.index + 1)
-        console.log('tareasAfectadas:', tareasAfectadas);
-        /* Actualizo su posicion */
-        const tareasActualizadas = tareas.map((tarea) => {
-          if (tareasAfectadas.includes(tarea)) {
-            // actualizo estado
-            tarea.posicion = tarea.posicion + 1; 
-            //actualizo BD
-            updateDoc(doc(db, `tareas/${tarea.id}`), {
-              posicion: tarea.posicion,
-            });
-          }
-          return tarea;
-        });
+        console.log('tareasAfectadas:', tareasAfectadas);       
+
+        // /* Tomo las que tienen posicion igual o mayor */
+        // const tareasAfectadas = tareasColumnaSinArrastrada.filter((tarea) => tarea.posicion >= destination.index + 1)
+        // console.log('tareasAfectadas:', tareasAfectadas);
+        // /* Actualizo su posicion */
+        // const tareasActualizadas = tareas.map((tarea) => {
+        //   if (tareasAfectadas.includes(tarea)) {
+        //     // actualizo estado
+        //     tarea.posicion = tarea.posicion + 1; 
+        //     //actualizo BD
+        //     updateDoc(doc(db, `tareas/${tarea.id}`), {
+        //       posicion: tarea.posicion,
+        //     });
+        //   }
+        //   return tarea;
+        // });
         
 
       } else { 
         console.log('distinta columna');
+        console.log('tareaArrastrada:', tareaArrastrada);
 
         await updateDoc(tareaRef, {
           columna: destination.droppableId,
