@@ -77,7 +77,13 @@ const Tarea = ({ tarea, index, onTareaDrag }) => {
           onMouseDown={handleClickDrag}
         >
           {!modoEdicion ?
-            <p>{tarea.nombreTarea}</p>
+          <>
+            <div>
+              <p><strong>{tarea.nombreTarea}</strong></p> 
+              <p style={{color:"red"}}>{tarea.id}</p>
+              <p style={{color:"red"}}>Posicion: {tarea.posicion}</p>
+            </div>
+          </>
           :
             <>
               <input 
@@ -91,10 +97,10 @@ const Tarea = ({ tarea, index, onTareaDrag }) => {
             </>
           }
 
-          <div>
+          {/* <div>
             <button onClick={cambiarModoEdicion}>/</button>
             <button onClick={() => deleteTarea(tarea.id)}>X</button>
-          </div>
+          </div> */}
         </div>
       )}
     </Draggable>

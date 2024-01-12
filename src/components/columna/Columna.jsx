@@ -118,7 +118,8 @@ const Columna = ({ columna, onTareaDrag }) => {
 
       {!modoEdicion ? 
         <h2 onDoubleClick={cambiarModoEdicion}>
-          {nombre} 
+          {nombre}
+          <p style={{color:"red", fontSize: "20px"}}>{columna.id}</p>
         </h2>
       :
         <>
@@ -133,8 +134,8 @@ const Columna = ({ columna, onTareaDrag }) => {
           <button onClick={() => updateNombreBD(columna.id, nombre)}>✓</button>
         </>
       }
-      <button onClick={cambiarModoEdicion}>renombrar</button>
-      <button onClick={() => deleteColumna(columna.id)}>X</button>
+      {/* <button onClick={cambiarModoEdicion}>renombrar</button>
+      <button onClick={() => deleteColumna(columna.id)}>X</button> */}
 
       <Droppable droppableId={columna.id} type="tarea">
         {(provided) => (

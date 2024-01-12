@@ -7,13 +7,16 @@ import Columna from "../columna/Columna";
 import { db } from "../../firebase";
 import { addDoc, getDocs, collection, orderBy, query, where, onSnapshot, doc, getDoc, runTransaction, updateDoc } from "firebase/firestore";
 
+import { useTareas } from "../../context/TareasContext";
+
 function Tablero() {
-  
+
   const proyecto = useParams().id;
   const [nombreProyecto, setNombreProyecto] = useState('');
 
   const [columnas, setColumnas] = useState([]);
   const columnasRef = collection(db, 'columnas');
+  const tareasRef = collection(db, 'tareas');
 
   const initialStateValues = {
     nombre: "",
@@ -24,6 +27,20 @@ function Tablero() {
   const [columnasAdd, setColumnasAdd] = useState(initialStateValues);
 
   const [tareaDrag, setTareaDrag] = useState();
+
+  const { getTareas } = useTareas();
+  const [tareas, setTareas] = useState([]);
+
+  const obtenerTareasTablero = async () => {
+    const idsDeColumnas = columnas.map((columna) => columna.id);
+    const tareasAll = await getTareas();
+    const tareasFiltradas = tareasAll.filter((tarea) => idsDeColumnas.includes(tarea.columna));
+    setTareas(tareasFiltradas);
+  }
+
+  useEffect(() => {
+    obtenerTareasTablero();
+  }, [columnas]);
 
   useEffect(() => {
     getNombreProyecto();
@@ -64,6 +81,63 @@ function Tablero() {
       transaction.update(columnaRef, { posicion: posNueva + 1});
     });
   }
+
+  const updatePosicionTarea = (id, posPrevia, posNueva, columna) => {
+    const tareaRef = doc(db, `tareas/${id}`);
+    const tareasColumna = query(tareasRef, where('columna', '==', columna));
+
+    runTransaction(db, async (transaction) => {
+      // actualiza tareas intermedias
+      if(posPrevia < posNueva) {
+        for(let i=posPrevia+1; i<=posNueva; i++) {
+          const q = query(tareasColumna, where("posicion", "==", i+1))
+          const querySnapshot = await getDocs(q);
+          querySnapshot.forEach(async (doc) => {
+            transaction.update(doc.ref, { posicion: i });
+          })
+        }
+      } else {
+        for(let i=posPrevia-1; i>=posNueva; i--) {
+          const q = query(tareasColumna, where("posicion", "==", i+1))
+          const querySnapshot = await getDocs(q);
+          querySnapshot.forEach(async (doc) => {
+            transaction.update(doc.ref, { posicion: i+2 });
+          })
+        }
+      }
+
+      // actualiza tarea seleccionada
+      transaction.update(tareaRef, { posicion: posNueva + 1});
+    });
+  };
+
+  const updatePosicionTareaDistintaColumna = (id, posPrevia, colPrevia, posNueva, colNueva) => {
+    const tareaRef = doc(db, `tareas/${id}`);
+    const tareasColumnaOrigen = query(tareasRef, where('columna', '==', colPrevia), where('posicion', '>', posPrevia + 1));
+    const tareasColumnaDestino = query(tareasRef, where('columna', '==', colNueva), where('posicion', '>', posNueva));
+
+    runTransaction(db, async (transaction) => {
+      // actualiza tareas afectadas
+      // columna origen
+      const querySnapshotOrigen = await getDocs(tareasColumnaOrigen);
+      querySnapshotOrigen.forEach(async (doc) => {
+        const tareaRef = doc.ref;
+        const posicion = doc.data().posicion;
+        await updateDoc(tareaRef, { posicion: posicion - 1});
+      });
+
+      // columna destino
+      const querySnapshotDestino = await getDocs(tareasColumnaDestino);
+      querySnapshotDestino.forEach(async (doc) => {
+        const tareaRef = doc.ref;
+        const posicion = doc.data().posicion;
+        await updateDoc(tareaRef, { posicion: posicion + 1});
+      });
+
+      // actualiza tarea seleccionada
+      transaction.update(tareaRef, { columna: colNueva, posicion: posNueva + 1});
+    });
+  };
 
   const getColumnas = async () => {
     const q = query(columnasRef, where("proyecto", "==", proyecto), orderBy("posicion"))
@@ -135,23 +209,16 @@ function Tablero() {
       updatePosicionColumna(result.draggableId, source.index, destination.index);
     }
 
-    // TODO: arrastro tarea
+    // arrastro tarea
     if(result.type === "tarea") {
-
-      const tareaRef = doc(db, `tareas/${tareaDrag}`);
-
-      await updateDoc(tareaRef, {
-        posicion: destination.index + 1,
-      });
-
-      if (source.droppableId !== destination.droppableId) {
-        await updateDoc(tareaRef, {
-          columna: destination.droppableId,
-        });
-
-
+      if (source.droppableId === destination.droppableId) {
+        console.log('misma columna');
+        setTareas(provTareas => reorder(provTareas, source.index, destination.index));
+        updatePosicionTarea(result.draggableId, source.index, destination.index, destination.droppableId);
+      } else {
+        console.log('distinta columna');
+        updatePosicionTareaDistintaColumna(result.draggableId, source.index, source.droppableId, destination.index, destination.droppableId);
       }
-
     }
   }
 

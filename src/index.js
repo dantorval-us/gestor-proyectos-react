@@ -6,12 +6,15 @@ import App from './App';
 import './firebase'
 import { BrowserRouter } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
+import { TareasProvider } from './context/TareasContext';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
     <BrowserRouter>
         <AuthProvider>
-            <App />
+            <TareasProvider>
+                <App />
+            </TareasProvider>
         </AuthProvider>
     </BrowserRouter>
 );
