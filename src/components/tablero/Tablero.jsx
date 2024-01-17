@@ -5,7 +5,11 @@ import { useParams } from 'react-router-dom';
 import Columna from "../columna/Columna";
 
 import { db } from "../../firebase";
-import { addDoc, getDocs, collection, orderBy, query, where, onSnapshot, doc, getDoc, runTransaction, updateDoc } from "firebase/firestore";
+import { getDocs, collection, orderBy, query, where, onSnapshot, doc, getDoc, runTransaction, updateDoc } from "firebase/firestore";
+import NuevaColumna from "../nueva-columna/NuevaColumna";
+
+import IconButton from '@mui/material/IconButton';
+import AddIcon from '@mui/icons-material/Add';
 
 function Tablero() {
   
@@ -14,14 +18,6 @@ function Tablero() {
 
   const [columnas, setColumnas] = useState([]);
   const columnasRef = collection(db, 'columnas');
-
-  const initialStateValues = {
-    nombre: "",
-    posicion: "",
-    proyecto: ""
-  }
-
-  const [columnasAdd, setColumnasAdd] = useState(initialStateValues);
 
   const [tareaDrag, setTareaDrag] = useState();
 
@@ -69,36 +65,6 @@ function Tablero() {
     const q = query(columnasRef, where("proyecto", "==", proyecto), orderBy("posicion"))
     onSnapshot(q, (snapshot) => 
     setColumnas(snapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id }))))
-  }
-
-  const addColumna = async (columna) => {
-    columna.posicion = await getPosicion();
-    columna.proyecto = proyecto;
-    await addDoc(columnasRef, columna);
-  }
-
-  const getPosicion = async () => {
-    let pos = await getNumColumnas() + 1;
-    return pos;
-  }
-
-  const getNumColumnas = async () => {
-    const q = query(columnasRef, where("proyecto", "==", proyecto));
-    const querySnapshot = await getDocs(q);
-    const numColumnas = querySnapshot.size;
-    return numColumnas;
-  }
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!columnasAdd.nombre.trim()) { return; }
-    addColumna(columnasAdd);
-    setColumnasAdd({...initialStateValues})
-  }
-
-  const handleInput = (e) => {
-    const {value} = e.target;
-    setColumnasAdd({...columnasAdd, nombre: value})
   }
 
   const handleTareaClickDrag = (tareaId) => {
@@ -155,6 +121,17 @@ function Tablero() {
     }
   }
 
+  /* Material UI Dialog */
+  const [open, setOpen] = useState(false);
+
+  const handleClickOpen = () => {
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+  };
+
   return (
     <div className="tablero-container">
       <h1>{ nombreProyecto }</h1>
@@ -189,10 +166,16 @@ function Tablero() {
           )}
         </Droppable>
       </DragDropContext>
-      <form onSubmit={handleSubmit}>
-        <input type="text" value={columnasAdd.nombre} onChange={handleInput}/>
-        <button>Añadir columna</button>
-      </form>
+
+      <IconButton aria-label="Add" onClick={handleClickOpen}>
+        <AddIcon />
+      </IconButton>
+      <NuevaColumna 
+        open={open}
+        onClose={handleClose}
+        proyecto={proyecto}
+        columnasRef={columnasRef}
+      />
     </div>
   );
 }
