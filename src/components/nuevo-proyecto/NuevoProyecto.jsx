@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { auth, db } from "../../firebase";
 import { addDoc, collection } from "firebase/firestore";
+import { IconButton, TextField } from "@mui/material";
+import AddIcon from '@mui/icons-material/Add';
 
 const NuevoProyecto = () => {
 
@@ -19,7 +21,10 @@ const NuevoProyecto = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!proyecto.nombre.trim()) { return; };
+    if (!proyecto.nombre.trim()) {
+      setProyecto({...proyecto, nombre: ''});
+      return; 
+    };
     addProyecto(proyecto);
     setProyecto({...initialStateValuesProyecto});
   }
@@ -31,10 +36,17 @@ const NuevoProyecto = () => {
 
   return (
     <>
-    <br />
     <form onSubmit={handleSubmit}>
-      <input type="text" value={proyecto.nombre} onChange={handleInput}/>
-      <button>+ Crear nuevo tablero</button>
+      <TextField 
+        label="Crear nuevo tablero" 
+        variant="standard" 
+        placeholder="Nombre" 
+        value={proyecto.nombre}
+        onChange={handleInput}
+      />
+      <IconButton type="submit">
+        <AddIcon />
+      </IconButton>
     </form>
     </>
   );
