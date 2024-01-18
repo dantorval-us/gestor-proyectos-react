@@ -23,3 +23,8 @@ h2 {
 .tareas-container {
   flex-grow: 1;
 }
+
+.nueva-tarea-container {
+  position: absolute;
+  bottom: 0;
+}

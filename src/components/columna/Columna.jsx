@@ -1,10 +1,11 @@
 import "./Columna.css"
-import { addDoc, collection, deleteDoc, doc, getDoc, getDocs, onSnapshot, orderBy, query, updateDoc, where } from "firebase/firestore";
+import { collection, deleteDoc, doc, getDoc, getDocs, onSnapshot, orderBy, query, updateDoc, where } from "firebase/firestore";
 import Tarea from "../tarea/Tarea";
 import { Droppable } from 'react-beautiful-dnd'
 
 import { db } from "../../firebase";
 import { useEffect, useRef, useState } from "react";
+import NuevaTarea from "../nueva-tarea/NuevaTarea";
 
 const Columna = ({ columna, onTareaDrag }) => {
 
@@ -14,14 +15,6 @@ const Columna = ({ columna, onTareaDrag }) => {
   const [modoEdicion, setModoEdicion] = useState(false);
   const [nombre, setNombre] = useState(columna.nombre);
   const inputRef = useRef(null);
-
-  const initialStateValuesTareas = {
-    columna: "",
-    nombreTarea: "",
-    posicion: ""
-  }
-
-  const [tareasAdd, setTareasAdd] = useState(initialStateValuesTareas);
 
   useEffect(() => {
     getTareas();
@@ -77,34 +70,11 @@ const Columna = ({ columna, onTareaDrag }) => {
 
   /* TAREAS */
 
-  const addTarea = async (tarea) => {
-    tarea.posicion = await getPosicion();
-    tarea.columna = columna.id;
-    await addDoc(tareasRef, tarea);
-  }
-
-  const getPosicion = async () => {
-    let pos = await getNumTareas() + 1;
-    return pos;
-  }
-
   const getNumTareas = async () => {
     const q = query(tareasRef, where("columna", "==", columna.id));
     const querySnapshot = await getDocs(q);
-    const numColumnas = querySnapshot.size;
-    return numColumnas;
-  }
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!tareasAdd.nombreTarea.trim()) { return; };
-    addTarea(tareasAdd);
-    setTareasAdd({...initialStateValuesTareas});
-  }
-
-  const handleInput = async (e) => {
-    const {value} = e.target;
-    setTareasAdd({...tareasAdd, nombreTarea: value})
+    const numTareas = querySnapshot.size;
+    return numTareas;
   }
 
   const getTareas = async () => {
@@ -156,11 +126,8 @@ const Columna = ({ columna, onTareaDrag }) => {
         )}
       </Droppable>
 
-      <div style={{ position: "absolute", bottom: 0 }}>
-        <form onSubmit={handleSubmit}>
-          <input type="text" value={tareasAdd.nombreTarea} onChange={handleInput}/>
-          <button>Añadir Tarea</button>
-        </form>
+      <div className="nueva-tarea-container">
+        <NuevaTarea columna={columna.id} numTareas={getNumTareas} tareasRef={tareasRef}/>
       </div>
 
     </div>
