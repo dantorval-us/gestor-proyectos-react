@@ -3,6 +3,7 @@ import { db } from "../../firebase";
 import { useState } from "react";
 import { useRef } from "react";
 import { useEffect } from "react";
+import MenuUD from "../menu-UD/MenuUD";
 
 const Proyecto = ({ proyecto }) => {
 
@@ -34,8 +35,7 @@ const Proyecto = ({ proyecto }) => {
     }
   }
 
-  const handeUpdate = async (e) => {
-    e.preventDefault();
+  const handleUpdate = async () => {
     setModoEdicion(!modoEdicion);
   }
 
@@ -74,8 +74,10 @@ const Proyecto = ({ proyecto }) => {
         </>
       }
 
-      <button onClick={handeUpdate}>/</button>
-      <button onClick={handleDelete}>X</button>
+      <MenuUD 
+        onUpdate={handleUpdate} 
+        onDelete={handleDelete}
+      />
     </>
   );
   
