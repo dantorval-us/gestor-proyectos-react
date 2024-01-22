@@ -3,6 +3,7 @@ import "./Tarea.css"
 import { Draggable } from "react-beautiful-dnd";
 import { db } from "../../firebase";
 import { useEffect, useRef, useState } from "react";
+import MenuUD from "../menu-UD/MenuUD";
 
 const Tarea = ({ tarea, index, onTareaDrag }) => {
 
@@ -92,8 +93,10 @@ const Tarea = ({ tarea, index, onTareaDrag }) => {
           }
 
           <div>
-            <button onClick={cambiarModoEdicion}>/</button>
-            <button onClick={() => deleteTarea(tarea.id)}>X</button>
+            <MenuUD 
+              onUpdate={cambiarModoEdicion} 
+              onDelete={() => deleteTarea(tarea.id)}
+            />
           </div>
         </div>
       )}

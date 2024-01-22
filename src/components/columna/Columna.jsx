@@ -6,6 +6,7 @@ import { Droppable } from 'react-beautiful-dnd'
 import { db } from "../../firebase";
 import { useEffect, useRef, useState } from "react";
 import NuevaTarea from "../nueva-tarea/NuevaTarea";
+import MenuUD from "../menu-UD/MenuUD";
 
 const Columna = ({ columna, onTareaDrag }) => {
 
@@ -103,8 +104,11 @@ const Columna = ({ columna, onTareaDrag }) => {
           <button onClick={() => updateNombreBD(columna.id, nombre)}>✓</button>
         </>
       }
-      <button onClick={cambiarModoEdicion}>renombrar</button>
-      <button onClick={() => deleteColumna(columna.id)}>X</button>
+      
+      <MenuUD 
+        onUpdate={cambiarModoEdicion} 
+        onDelete={() => deleteColumna(columna.id)}
+      />
 
       <Droppable droppableId={columna.id} type="tarea">
         {(provided) => (
