@@ -1,0 +1,48 @@
+#crear-tablero-btn {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  margin-top: 0.5rem;
+  padding: 0 0.5rem;
+  color: var(--secondary-color);
+  border-radius: 7px;
+  transition: background-color 0.3s ease !important;
+}
+
+#crear-tablero-btn:hover {
+  background-color: #e4e4e4;
+}
+
+/* .btn-add-proyecto {
+ display: flex;
+ align-items: center;
+ color: var(--secondary-color);
+ cursor: pointer !important;
+} */
+
+
+.playlist-add-icon {
+  margin-top: 0.7em;
+}
+
+.btn-add {
+  margin-top: 0.6em !important;
+  color: var(--secondary-color) !important;
+  width: 2rem;
+  height: 2rem;
+}
+
+.textfield-label label {
+  color: var(--secondary-color);
+  font-size: 0.9em;
+  font-weight: bold;
+}
+
+.MuiFormControl-root .MuiInput-root::before {
+  border-bottom: none;
+}
+
+.dialog-content-text {
+  color: var(--primary-color) !important;
+  margin: 1.5rem 1.5rem 0 !important;
+}

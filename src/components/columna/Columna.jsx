@@ -7,6 +7,7 @@ import { db } from "../../firebase";
 import { useEffect, useRef, useState } from "react";
 import NuevaTarea from "../nueva-tarea/NuevaTarea";
 import MenuUD from "../menu-UD/MenuUD";
+import { Box, Button, TextField } from "@mui/material";
 
 const Columna = ({ columna, onTareaDrag }) => {
 
@@ -86,54 +87,66 @@ const Columna = ({ columna, onTareaDrag }) => {
 
   return (
     <div className="columna-container">
-
-      {!modoEdicion ? 
-        <h2 onDoubleClick={cambiarModoEdicion}>
-          {nombre} 
-        </h2>
-      :
-        <>
-          <input
-            type="text"
-            value={nombre}
-            onChange={updateNombre}
-            onKeyDown={enterToUpdateNombre}
-            // onBlur={cambiarModoEdicion}
-            ref={inputRef}
+      <div className="cuerpo">
+        <div className="d-flex justify-content-between cabecera">
+          {!modoEdicion ? 
+            <h2 className="h2-columna" onDoubleClick={cambiarModoEdicion}>
+              {nombre} 
+            </h2>
+          :
+            <>
+              <form>
+                <Box sx={{ display: 'flex', alignItems: 'flex-end' }}>
+                  <TextField 
+                    variant="standard" 
+                    className="textfield-update-nombre"
+                    value={nombre}
+                    onChange={updateNombre}
+                    onKeyDown={enterToUpdateNombre}
+                    ref={inputRef}
+                  />
+                  <Button 
+                    className="btn-update" 
+                    onClick={() => {updateNombreBD(columna.id, nombre)}}
+                  >
+                    ✓
+                  </Button>
+                </Box>
+              </form>
+            </>
+          }
+          
+          <MenuUD
+            vertical={true}
+            onUpdate={cambiarModoEdicion} 
+            onDelete={() => deleteColumna(columna.id)}
           />
-          <button onClick={() => updateNombreBD(columna.id, nombre)}>✓</button>
-        </>
-      }
-      
-      <MenuUD 
-        onUpdate={cambiarModoEdicion} 
-        onDelete={() => deleteColumna(columna.id)}
-      />
+        </div> 
 
-      <Droppable droppableId={columna.id} type="tarea">
-        {(provided) => (
-          <div 
-            {...provided.droppableProps}
-            ref={provided.innerRef}
-            className="tareas-container"
-          >
-            {tareas.map((tarea, index) => (
-              <Tarea 
-                key={tarea.id} 
-                tarea={tarea} 
-                index={index}
-                onTareaDrag={onTareaDrag}
-              />
-            ))}
-            {provided.placeholder}
-          </div>
-        )}
-      </Droppable>
-
-      <div className="nueva-tarea-container">
-        <NuevaTarea columna={columna.id} numTareas={getNumTareas} tareasRef={tareasRef}/>
+        <Droppable droppableId={columna.id} type="tarea">
+          {(provided) => (
+            <div 
+              {...provided.droppableProps}
+              ref={provided.innerRef}
+              className="tareas-container"
+            >
+              {tareas.map((tarea, index) => (
+                <Tarea 
+                  key={tarea.id} 
+                  tarea={tarea} 
+                  index={index}
+                  onTareaDrag={onTareaDrag}
+                />
+              ))}
+              {provided.placeholder}
+            </div>
+          )}
+        </Droppable>
       </div>
 
+      <div className="pie">
+        <NuevaTarea columna={columna.id} numTareas={getNumTareas} tareasRef={tareasRef}/>
+      </div>
     </div>
   );
 };

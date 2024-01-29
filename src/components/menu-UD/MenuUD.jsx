@@ -2,10 +2,11 @@ import "./MenuUD.css"
 import { useState } from "react";
 import { IconButton, ListItemIcon, ListItemText, Menu, MenuItem } from "@mui/material";
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 
-function MenuUD ({ onUpdate, onDelete }) {
+function MenuUD ({ vertical, onUpdate, onDelete }) {
 
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
@@ -27,8 +28,8 @@ function MenuUD ({ onUpdate, onDelete }) {
 
   return (
     <>
-      <IconButton onClick={handleClickMenu}>
-        <MoreHorizIcon />
+      <IconButton className="btn-cuadrado" onClick={handleClickMenu}>
+        {vertical === true ? <MoreVertIcon /> : <MoreHorizIcon />}
       </IconButton>
       <Menu
         anchorEl={anchorEl}

@@ -1,6 +1,7 @@
+import "./NuevaTarea.css"
 import { useState } from "react";
 import { addDoc } from "@firebase/firestore";
-import { IconButton, TextField } from "@mui/material";
+import { Box, TextField } from "@mui/material";
 import AddIcon from '@mui/icons-material/Add';
 
 function NuevaTarea ({ columna, numTareas, tareasRef }) {
@@ -35,20 +36,22 @@ function NuevaTarea ({ columna, numTareas, tareasRef }) {
   };
 
   return (
-    <>
+    <div>
       <form onSubmit={handleSubmit}>
-        <TextField 
-          label="Añadir tarea" 
-          variant="standard" 
-          placeholder="Nombre" 
-          value={tareasAdd.nombreTarea}
-          onChange={handleInput}
-        />
-        <IconButton type="submit">
-          <AddIcon />
-        </IconButton>
+        <Box sx={{ display: 'flex', alignItems: 'flex-end' }}>
+          <AddIcon sx={{ my: 0.6 }} />
+          <TextField 
+            id="nueva-tarea" 
+            label="Añadir tarea" 
+            variant="standard" 
+            className="textfield-label-tarea"
+            placeholder="Nombre" 
+            value={tareasAdd.nombreTarea}
+            onChange={handleInput}
+          />
+        </Box>
       </form>
-    </>
+    </div>
   );
 
 }

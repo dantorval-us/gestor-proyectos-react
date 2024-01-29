@@ -21,6 +21,8 @@ function Tablero() {
 
   const [tareaDrag, setTareaDrag] = useState();
 
+  const [loading, setLoading] = useState(true);
+
   useEffect(() => {
     getNombreProyecto();
     getColumnas();
@@ -30,7 +32,8 @@ function Tablero() {
     const proyectoRef = doc(db, `proyectos/${proyecto}`);
     const proyectoSnap = await getDoc(proyectoRef);
     const nombre = proyectoSnap.data().nombre;
-    setNombreProyecto(nombre);
+    await setNombreProyecto(nombre);
+    setLoading(false);
   };
 
   const updatePosicionColumna = (id, posPrevia, posNueva) => {
@@ -114,10 +117,7 @@ function Tablero() {
         await updateDoc(tareaRef, {
           columna: destination.droppableId,
         });
-
-
       }
-
     }
   }
 
@@ -133,50 +133,56 @@ function Tablero() {
   };
 
   return (
-    <div className="tablero-container">
-      <h1>{ nombreProyecto }</h1>
-      <DragDropContext onDragEnd={onDragEnd}>
-        <Droppable droppableId="columnas" direction="horizontal" type="columna">
-          {(droppableProvided) => (
-            <div 
-              {...droppableProvided.droppableProps}
-              ref={droppableProvided.innerRef}
-              className="columnas-container"
-            >
-              {columnas.map((columna, index) => (
-                <Draggable draggableId={columna.id} key={columna.id} index={index}>
-                  {(draggableProvided) => (
-                    <div
-                      {...draggableProvided.draggableProps}
-                      ref={draggableProvided.innerRef}
-                      {...draggableProvided.dragHandleProps}
-                    >
-                      <Columna 
-                        key={columna.id}
-                        columna={columna} 
-                        index={index}
-                        onTareaDrag={handleTareaClickDrag}
-                      />
-                    </div>
-                  )}
-                </Draggable>
-              ))}
-              {droppableProvided.placeholder}
-            </div>
-          )}
-        </Droppable>
-      </DragDropContext>
-
-      <IconButton aria-label="Add" onClick={handleClickOpen}>
-        <AddIcon />
-      </IconButton>
-      <NuevaColumna 
-        open={open}
-        onClose={handleClose}
-        proyecto={proyecto}
-        columnasRef={columnasRef}
-      />
-    </div>
+    <>
+      {!loading && 
+        <div className="gral-container">
+          <div className="tablero-container">
+            <h1 className="h1-tablero">{ nombreProyecto }</h1>
+            <DragDropContext onDragEnd={onDragEnd}>
+              <Droppable droppableId="columnas" direction="horizontal" type="columna">
+                {(droppableProvided) => (
+                  <div 
+                    {...droppableProvided.droppableProps}
+                    ref={droppableProvided.innerRef}
+                    className="columnas-container"
+                  >
+                    {columnas.map((columna, index) => (
+                      <Draggable draggableId={columna.id} key={columna.id} index={index}>
+                        {(draggableProvided, snapshot) => (
+                          <div className={`columna-box ${snapshot.isDragging ? 'dragging' : ''}`}
+                            {...draggableProvided.draggableProps}
+                            ref={draggableProvided.innerRef}
+                            {...draggableProvided.dragHandleProps}
+                          >
+                            <Columna 
+                              key={columna.id}
+                              columna={columna} 
+                              index={index}
+                              onTareaDrag={handleTareaClickDrag}
+                            />
+                          </div>
+                        )}
+                      </Draggable>
+                    ))}
+                    {droppableProvided.placeholder}
+                    <IconButton className="btn-cuadrado" aria-label="Add" onClick={handleClickOpen}>
+                      <AddIcon />
+                    </IconButton>
+                  </div>
+                )}
+              </Droppable>
+            </DragDropContext>
+            
+            <NuevaColumna 
+              open={open}
+              onClose={handleClose}
+              proyecto={proyecto}
+              columnasRef={columnasRef}
+            />
+          </div>
+        </div>
+      }
+    </>
   );
 }
 

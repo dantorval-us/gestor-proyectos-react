@@ -1,0 +1,13 @@
+.h2- {
+  font-size: 1em !important;
+  margin-bottom: 0;
+}
+
+.i {
+  color: var(--secondary-color);
+}
+
+.textfield-update-nombre input{
+  font-size: 1.2em;
+  border-bottom: 2px solid var(--secondary-color);
+}

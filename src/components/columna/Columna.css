@@ -1,7 +1,11 @@
-h2 {
+.h2-columna {
+  font-size: 1.3em;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  margin: 0;
+  display: flex;
+  align-items: center;
 }
 
 .columna-container {
@@ -21,10 +25,31 @@ h2 {
 }
 
 .tareas-container {
+  min-height: 100%;
   flex-grow: 1;
 }
 
-.nueva-tarea-container {
+.cuerpo {
+  margin-bottom: 4.5rem;
+  flex-grow: 1;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.cabecera {
+  margin-bottom: 1rem;
+}
+
+.pie {
   position: absolute;
   bottom: 0;
+  left: 0;
+  width: 100%;
+  cursor: pointer;
+}
+
+.pie:hover { 
+  background-color: rgb(245, 245, 245);
+  border-radius: 7px;
 }

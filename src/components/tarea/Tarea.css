@@ -1,4 +1,4 @@
-h3 {
+.h3- {
   margin-bottom: 0;
   padding-left: 1rem;
   overflow: hidden;
@@ -36,3 +36,13 @@ h3 {
               0 3px 14px 2px rgba(0, 0, 0, 0.12);
   cursor: grabbing;
 }
+
+.tarjeta:hover .menu-ud {
+  display: block;
+}
+
+.menu-ud {
+  display: none;
+}
+
+

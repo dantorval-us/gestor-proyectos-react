@@ -1,9 +1,10 @@
+import "./Proyecto.css"
+import { useState, useRef, useEffect } from "react";
 import { deleteDoc, doc, updateDoc } from "firebase/firestore";
 import { db } from "../../firebase";
-import { useState } from "react";
-import { useRef } from "react";
-import { useEffect } from "react";
 import MenuUD from "../menu-UD/MenuUD";
+import ViewKanbanOutlinedIcon from '@mui/icons-material/ViewKanbanOutlined';
+import { Box, Button, TextField } from "@mui/material";
 
 const Proyecto = ({ proyecto }) => {
 
@@ -30,7 +31,7 @@ const Proyecto = ({ proyecto }) => {
   }
 
   const enterToUpdateNombre = async (e) => {
-    if (e.key == 'Enter') {
+    if (e.key === 'Enter') {
       updateNombreBD(proyecto.id, nombre);
     }
   }
@@ -54,31 +55,43 @@ const Proyecto = ({ proyecto }) => {
   }
 
   return (
-    <>
+    <div className="d-flex justify-content-between">
       {!modoEdicion ? 
-        <h1>{nombre}</h1>
+      <div className="d-flex justify-content-between align-items-center">
+        <span className="i">
+          <ViewKanbanOutlinedIcon />&nbsp;&nbsp;
+        </span>
+        <h2 className="h2-">{nombre}</h2>
+      </div>
       :
         <>
-          <input
-            type="text"
-            value={nombre}
-            onClick={preventDefault}
-            onChange={updateNombre}
-            onKeyDown={enterToUpdateNombre}
-            ref={inputRef}  
-          />
-          <button onClick={(e) => {
-            e.preventDefault();
-            updateNombreBD(proyecto.id, nombre);
-          }}>✓</button>
+          <form>
+            <Box sx={{ display: 'flex', alignItems: 'flex-end' }}>
+              <ViewKanbanOutlinedIcon sx={{ color: 'var(--secondary-color)', my: 0.8, mr: 1.5 }} />
+              <TextField 
+                variant="standard" 
+                className="textfield-update-nombre"
+                value={nombre}
+                onClick={preventDefault}
+                onChange={updateNombre}
+                onKeyDown={enterToUpdateNombre}
+                ref={inputRef}
+              />
+              <Button className="btn-update" onClick={(e) => {
+                e.preventDefault();
+                updateNombreBD(proyecto.id, nombre);
+              }}>✓</Button>
+            </Box>
+          </form>
         </>
       }
 
-      <MenuUD 
+      <MenuUD
+        vertical={false}
         onUpdate={handleUpdate} 
         onDelete={handleDelete}
       />
-    </>
+    </div>
   );
   
 };

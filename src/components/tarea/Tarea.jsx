@@ -4,6 +4,7 @@ import { Draggable } from "react-beautiful-dnd";
 import { db } from "../../firebase";
 import { useEffect, useRef, useState } from "react";
 import MenuUD from "../menu-UD/MenuUD";
+import { Box, Button, TextField } from "@mui/material";
 
 const Tarea = ({ tarea, index, onTareaDrag }) => {
 
@@ -74,30 +75,43 @@ const Tarea = ({ tarea, index, onTareaDrag }) => {
           {...provided.draggableProps}
           {...provided.dragHandleProps}
           ref={provided.innerRef}
-          className="tarjeta"
+          className="d-flex justify-content-between align-items-start tarjeta"
           onMouseDown={handleClickDrag}
         >
           {!modoEdicion ?
-            <p>{tarea.nombreTarea}</p>
+            <div className="h3-">{tarea.nombreTarea}</div>
           :
             <>
-              <input 
-                type="text" 
-                value={nombre}
-                onChange={updateNombre}
-                onKeyDown={enterToUpdateNombre}
-                ref={inputRef} 
-              />
-              <button onClick={() => updateNombreBD(tarea.id, nombre)}>✓</button>
+              <form>
+                <Box sx={{ display: 'flex', alignItems: 'flex-end' }}>
+                  <TextField 
+                    variant="standard" 
+                    className="textfield-update-nombre"
+                    value={nombre}
+                    onChange={updateNombre}
+                    onKeyDown={enterToUpdateNombre}
+                    ref={inputRef}
+                  />
+                  <Button 
+                    className="btn-update" 
+                    onClick={() => updateNombreBD(tarea.id, nombre)}
+                  >
+                    ✓
+                  </Button>
+                </Box>
+              </form>
             </>
           }
 
-          <div>
-            <MenuUD 
+          {!modoEdicion &&
+          <div className="menu-ud">
+            <MenuUD
+              vertical={true}
               onUpdate={cambiarModoEdicion} 
               onDelete={() => deleteTarea(tarea.id)}
             />
           </div>
+          }
         </div>
       )}
     </Draggable>

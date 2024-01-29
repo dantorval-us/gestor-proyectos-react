@@ -69,7 +69,7 @@ function NuevaColumna ({ open, onClose, proyecto, columnasRef }) {
                 helperText={error ? 'Debes escribir algo' : ''}
               />
           </DialogContent>
-          <DialogActions>
+          <DialogActions className="d-flex justify-content-between">
             <Button onClick={onClose}>Cancelar</Button>
             <Button type="submit">Crear</Button>
           </DialogActions>
