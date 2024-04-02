@@ -11,7 +11,7 @@ const Tarea = ({ tarea, index }) => {
           ref={provided.innerRef}
           className="tarjeta"
         >
-          {tarea.nombre}
+          {tarea.nombreTarea}
         </div>
       )}
     </Draggable>

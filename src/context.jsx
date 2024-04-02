@@ -34,6 +34,10 @@ export function DataProvider({ children }) {
     fetchData();
   }, [])
 
+  useEffect(() => {
+    console.log('columnas:', columnas);
+  }, [columnas])
+
   const getColumnas = async () => {
     const q = query(columnasRef, where('proyecto', '==', proyecto), orderBy('posicion'));
     const snapshot = await getDocs(q);

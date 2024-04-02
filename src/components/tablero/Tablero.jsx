@@ -2,7 +2,6 @@ import "./Tablero.css"
 import { useEffect, useState } from "react";
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd'
 import Columna from "../columna/Columna";
-import { columnasMock, tareasMock } from "../../mockData";
 import { useDataContext } from "../../context";
 
 function Tablero() {
@@ -28,9 +27,9 @@ function Tablero() {
   }, [columnas, tareas]);
 
   useEffect(() => {
-    console.log('(TABLERO) Columnas:', columnas);
-    console.log('(TABLERO) Tareas:', tareas);
-    console.log('(TABLERO) columnasData:', columnasData);
+    // console.log('(TABLERO) Columnas:', columnas);
+    // console.log('(TABLERO) Tareas:', tareas);
+    // console.log('(TABLERO) columnasData:', columnasData);
   }, [columnas, tareas, columnasData])
 
   const reorder = (list, startIndex, endIndex) => {
@@ -47,16 +46,10 @@ function Tablero() {
   const onDragEnd = (result) => {
     const {source, destination} = result;
 
-    if (!destination) {
-      return;
-    }
-
-    if (
-      source.droppableId === destination.droppableId &&
-      source.index === destination.index
-    ) {
-      return;
-    }
+    if (!destination || 
+      (source.droppableId === destination.droppableId &&
+      source.index === destination.index)) 
+      {return};
 
     // arrastro columna
     if(result.type === "columna") {
@@ -64,49 +57,49 @@ function Tablero() {
     }
 
     // arrastro tarea
-    // if(result.type === "tarea") {
+    if(result.type === "tarea") {
 
-    //   const columnaOrigen = columnasData[source.droppableId];
-    //   const tareaArrastrada = columnaOrigen.tareas[source.index];
+      const columnaOrigen = columnasData[source.droppableId];
+      const tareaArrastrada = columnaOrigen.tareas[source.index];
 
-    //   if (source.droppableId === destination.droppableId) {
-    //     const nuevasTareas = Array.from(columnaOrigen.tareas);
-    //     nuevasTareas.splice(source.index, 1);
-    //     nuevasTareas.splice(destination.index, 0, tareaArrastrada);
+      if (source.droppableId === destination.droppableId) {
+        const nuevasTareas = Array.from(columnaOrigen.tareas);
+        nuevasTareas.splice(source.index, 1);
+        nuevasTareas.splice(destination.index, 0, tareaArrastrada);
 
-    //     const nuevasColumnasData = {
-    //       ...columnasData,
-    //       [source.droppableId]: {
-    //         ...columnaOrigen,
-    //         tareas: nuevasTareas,
-    //       },
-    //     };
+        const nuevasColumnasData = {
+          ...columnasData,
+          [source.droppableId]: {
+            ...columnaOrigen,
+            tareas: nuevasTareas,
+          },
+        };
 
-    //     setColumnasData(nuevasColumnasData);
-    //   } else {
-    //     const columnaDestino = columnasData[destination.droppableId];
+        setColumnasData(nuevasColumnasData);
+      } else {
+        const columnaDestino = columnasData[destination.droppableId];
 
-    //     const nuevasTareasOrigen = Array.from(columnaOrigen.tareas);
-    //     nuevasTareasOrigen.splice(source.index, 1);
+        const nuevasTareasOrigen = Array.from(columnaOrigen.tareas);
+        nuevasTareasOrigen.splice(source.index, 1);
 
-    //     const nuevasTareasDestino = Array.from(columnaDestino.tareas);
-    //     nuevasTareasDestino.splice(destination.index, 0, tareaArrastrada);
+        const nuevasTareasDestino = Array.from(columnaDestino.tareas);
+        nuevasTareasDestino.splice(destination.index, 0, tareaArrastrada);
 
-    //     const nuevasColumnasData = {
-    //       ...columnasData,
-    //       [source.droppableId]: {
-    //         ...columnaOrigen,
-    //         tareas: nuevasTareasOrigen,
-    //       },
-    //       [destination.droppableId]: {
-    //         ...columnaDestino,
-    //         tareas: nuevasTareasDestino,
-    //       },
-    //     };
+        const nuevasColumnasData = {
+          ...columnasData,
+          [source.droppableId]: {
+            ...columnaOrigen,
+            tareas: nuevasTareasOrigen,
+          },
+          [destination.droppableId]: {
+            ...columnaDestino,
+            tareas: nuevasTareasDestino,
+          },
+        };
 
-    //     setColumnasData(nuevasColumnasData);
-    //   }
-    // }
+        setColumnasData(nuevasColumnasData);
+      }
+    }
   }
 
   // Condición para renderizar el componente Columna
