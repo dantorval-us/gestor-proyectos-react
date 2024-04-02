@@ -14,9 +14,9 @@ const Columna = ({ columna, tareas }) => {
             ref={provided.innerRef}
             className="tareas-container"
           >
-            {/* {tareas.map((tarea, index) => (
+            {tareas.map((tarea, index) => (
               <Tarea key={tarea.id} tarea={tarea} index={index}/>
-            ))} */}
+            ))}
             {provided.placeholder}
           </div>
         )}

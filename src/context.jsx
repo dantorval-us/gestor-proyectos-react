@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { db } from "./firebase";
-import { collection, getDocs, query, where } from "@firebase/firestore";
+import { collection, getDocs, orderBy, query, where } from "@firebase/firestore";
 
 const dataContext = createContext();
 
@@ -35,7 +35,7 @@ export function DataProvider({ children }) {
   }, [])
 
   const getColumnas = async () => {
-    const q = query(columnasRef, where('proyecto', '==', proyecto));
+    const q = query(columnasRef, where('proyecto', '==', proyecto), orderBy('posicion'));
     const snapshot = await getDocs(q);
     return snapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
   }
@@ -47,7 +47,7 @@ export function DataProvider({ children }) {
   }
 
   return (
-    <dataContext.Provider value={{ columnas, tareas }}>
+    <dataContext.Provider value={{ columnas, setColumnas, tareas }}>
       {children}
     </dataContext.Provider>
   )

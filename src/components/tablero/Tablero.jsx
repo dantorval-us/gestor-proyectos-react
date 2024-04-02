@@ -7,28 +7,31 @@ import { useDataContext } from "../../context";
 
 function Tablero() {
 
-  const { columnas, tareas } = useDataContext();
-
-  useEffect(() => {
-    console.log('(TABLERO) Columnas:', columnas);
-    console.log('(TABLERO) Tareas:', tareas);
-  }, [columnas, tareas])
+  const { columnas, setColumnas, tareas } = useDataContext();
+  const [columnasData, setColumnasData] = useState({});
 
   // TAREAS
   const getTareasByColumnaId = (columnaId) => {
     return tareas.filter((tarea) => tarea.columna === columnaId);
   };
 
-  const [columnasData, setColumnasData] = useState(
-    columnas.reduce((data, columna) => {
+  useEffect(() => {
+    const columnasDataUpdated = columnas.reduce((data, columna) => {
       data[columna.id] = {
         id: columna.id,
         nombre: columna.nombre,
         tareas: getTareasByColumnaId(columna.id),
       };
       return data;
-    }, {})
-  );
+    }, {});
+    setColumnasData(columnasDataUpdated);
+  }, [columnas, tareas]);
+
+  useEffect(() => {
+    console.log('(TABLERO) Columnas:', columnas);
+    console.log('(TABLERO) Tareas:', tareas);
+    console.log('(TABLERO) columnasData:', columnasData);
+  }, [columnas, tareas, columnasData])
 
   const reorder = (list, startIndex, endIndex) => {
     const result = [...list];
@@ -38,11 +41,6 @@ function Tablero() {
     return result;
   };
 
-  // COLUMNAS
-
-  /* v MOCK v */
-  // TAREAS
-  
   // COLUMNAS
 
   // onDragEnd comun 
@@ -66,51 +64,54 @@ function Tablero() {
     }
 
     // arrastro tarea
-    if(result.type === "tarea") {
+    // if(result.type === "tarea") {
 
-      const columnaOrigen = columnasData[source.droppableId];
-      const tareaArrastrada = columnaOrigen.tareas[source.index];
+    //   const columnaOrigen = columnasData[source.droppableId];
+    //   const tareaArrastrada = columnaOrigen.tareas[source.index];
 
-      if (source.droppableId === destination.droppableId) {
-        const nuevasTareas = Array.from(columnaOrigen.tareas);
-        nuevasTareas.splice(source.index, 1);
-        nuevasTareas.splice(destination.index, 0, tareaArrastrada);
+    //   if (source.droppableId === destination.droppableId) {
+    //     const nuevasTareas = Array.from(columnaOrigen.tareas);
+    //     nuevasTareas.splice(source.index, 1);
+    //     nuevasTareas.splice(destination.index, 0, tareaArrastrada);
 
-        const nuevasColumnasData = {
-          ...columnasData,
-          [source.droppableId]: {
-            ...columnaOrigen,
-            tareas: nuevasTareas,
-          },
-        };
+    //     const nuevasColumnasData = {
+    //       ...columnasData,
+    //       [source.droppableId]: {
+    //         ...columnaOrigen,
+    //         tareas: nuevasTareas,
+    //       },
+    //     };
 
-        setColumnasData(nuevasColumnasData);
-      } else {
-        const columnaDestino = columnasData[destination.droppableId];
+    //     setColumnasData(nuevasColumnasData);
+    //   } else {
+    //     const columnaDestino = columnasData[destination.droppableId];
 
-        const nuevasTareasOrigen = Array.from(columnaOrigen.tareas);
-        nuevasTareasOrigen.splice(source.index, 1);
+    //     const nuevasTareasOrigen = Array.from(columnaOrigen.tareas);
+    //     nuevasTareasOrigen.splice(source.index, 1);
 
-        const nuevasTareasDestino = Array.from(columnaDestino.tareas);
-        nuevasTareasDestino.splice(destination.index, 0, tareaArrastrada);
+    //     const nuevasTareasDestino = Array.from(columnaDestino.tareas);
+    //     nuevasTareasDestino.splice(destination.index, 0, tareaArrastrada);
 
-        const nuevasColumnasData = {
-          ...columnasData,
-          [source.droppableId]: {
-            ...columnaOrigen,
-            tareas: nuevasTareasOrigen,
-          },
-          [destination.droppableId]: {
-            ...columnaDestino,
-            tareas: nuevasTareasDestino,
-          },
-        };
+    //     const nuevasColumnasData = {
+    //       ...columnasData,
+    //       [source.droppableId]: {
+    //         ...columnaOrigen,
+    //         tareas: nuevasTareasOrigen,
+    //       },
+    //       [destination.droppableId]: {
+    //         ...columnaDestino,
+    //         tareas: nuevasTareasDestino,
+    //       },
+    //     };
 
-        setColumnasData(nuevasColumnasData);
-      }
-    }
+    //     setColumnasData(nuevasColumnasData);
+    //   }
+    // }
   }
 
+  // Condición para renderizar el componente Columna
+  const columnasCargadas = Object.keys(columnasData).length > 0;
+  
   return (
     <div className="tablero-container">
       <h1>nombreProyecto mock</h1>
@@ -122,7 +123,7 @@ function Tablero() {
               ref={droppableProvided.innerRef}
               className="columnas-container"
             >
-              {columnas.map((columna, index) => (
+              {columnasCargadas && columnas.map((columna, index) => (
                 <Draggable draggableId={columna.id} key={columna.id} index={index}>
                   {(draggableProvided) => (
                     <div
@@ -130,12 +131,12 @@ function Tablero() {
                       ref={draggableProvided.innerRef}
                       {...draggableProvided.dragHandleProps}
                     >
-                      {/* <Columna 
+                      <Columna 
                         key={columna.id}
                         columna={columna} 
                         tareas={columnasData[columna.id].tareas}
                         index={index}
-                      /> */}
+                      />
                     </div>
                   )}
                 </Draggable>
