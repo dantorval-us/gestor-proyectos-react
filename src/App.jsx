@@ -1,18 +1,21 @@
 import './App.css';
 import Tablero from './components/tablero/Tablero';
+import { DataProvider } from './context';
 
 function App() {
   return (
-    <div className="App">
-      <>
-        <header className="App-header">
-        </header>
+    <DataProvider>
+      <div className="App">
+        <>
+          <header className="App-header">
+          </header>
 
-        <main>
-          <Tablero />
-        </main>
-      </>
-    </div>
+          <main>
+            <Tablero />
+          </main>
+        </>
+      </div>
+    </DataProvider>
   );
 }
 

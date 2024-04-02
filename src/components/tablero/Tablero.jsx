@@ -1,18 +1,26 @@
 import "./Tablero.css"
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd'
 import Columna from "../columna/Columna";
 import { columnasMock, tareasMock } from "../../mockData";
+import { useDataContext } from "../../context";
 
 function Tablero() {
 
+  const { columnas, tareas } = useDataContext();
+
+  useEffect(() => {
+    console.log('(TABLERO) Columnas:', columnas);
+    console.log('(TABLERO) Tareas:', tareas);
+  }, [columnas, tareas])
+
   // TAREAS
   const getTareasByColumnaId = (columnaId) => {
-    return tareasMock.filter((tarea) => tarea.columna === columnaId);
+    return tareas.filter((tarea) => tarea.columna === columnaId);
   };
 
   const [columnasData, setColumnasData] = useState(
-    columnasMock.reduce((data, columna) => {
+    columnas.reduce((data, columna) => {
       data[columna.id] = {
         id: columna.id,
         nombre: columna.nombre,
@@ -29,9 +37,13 @@ function Tablero() {
   
     return result;
   };
+
+  // COLUMNAS
+
+  /* v MOCK v */
+  // TAREAS
   
   // COLUMNAS
-  const [columnas, setColumnas] = useState(columnasMock)
 
   // onDragEnd comun 
   const onDragEnd = (result) => {
@@ -118,12 +130,12 @@ function Tablero() {
                       ref={draggableProvided.innerRef}
                       {...draggableProvided.dragHandleProps}
                     >
-                      <Columna 
+                      {/* <Columna 
                         key={columna.id}
                         columna={columna} 
                         tareas={columnasData[columna.id].tareas}
                         index={index}
-                      />
+                      /> */}
                     </div>
                   )}
                 </Draggable>
