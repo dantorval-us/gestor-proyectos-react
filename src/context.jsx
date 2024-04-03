@@ -25,8 +25,6 @@ export function DataProvider({ children }) {
         const tareasData = await getTareas(columnasIds);
         setColumnas(columnasData);
         setTareas(tareasData);
-        // console.log('(CONTEXT) Columnas:', columnasData);
-        // console.log('(CONTEXT) Tareas:', tareasData);
       } catch(error) {
         console.log('Error al obtener las columnas:', error);
       }

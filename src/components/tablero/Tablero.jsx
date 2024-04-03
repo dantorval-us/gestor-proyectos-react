@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd'
 import Columna from "../columna/Columna";
 import { useDataContext } from "../../context";
-import { getDocs, collection, orderBy, query, where, onSnapshot, doc, getDoc, runTransaction, updateDoc, writeBatch } from "firebase/firestore";
+import { getDocs, collection, query, where, doc, runTransaction, writeBatch } from "firebase/firestore";
 
 function Tablero() {
 
@@ -11,7 +11,7 @@ function Tablero() {
   const [columnasData, setColumnasData] = useState({});
   const [dragId, setDragId] = useState(null);
 
-  // TAREAS
+  // ColumnasData
   const getTareasByColumnaId = (columnaId) => {
     return tareas.filter((tarea) => tarea.columna === columnaId);
   };
@@ -29,19 +29,7 @@ function Tablero() {
     setColumnasData(columnasDataUpdated);
   }, [columnas, tareas]);
 
-  useEffect(() => {
-    // console.log('(TABLERO) Columnas:', columnas);
-    // console.log('(TABLERO) Tareas:', tareas);
-    // console.log('(TABLERO) columnasData:', columnasData);
-  }, [columnas, tareas, columnasData])
-
-  const getColumnaId = (columnasData, posicion) => {
-    const keys = Object.keys(columnasData);
-    const columnaId = keys.find(key => columnasData[key].posicion === posicion);
-    return columnaId ? columnaId : null;
-  }
-
-  // COLUMNAS
+  // COLUMNAS DnD
   const updatePosicionColumna = (id, posPrevia, posNueva) => {
     const columnaRef = doc(db,  `columnas/${id}`);
     const colsProyecto = query(columnasRef, where('proyecto', '==', proyecto));
@@ -70,15 +58,7 @@ function Tablero() {
     });
   }
 
-  const reorder = (list, startIndex, endIndex) => {
-    const result = [...list];
-    const [removed] = result.splice(startIndex, 1);
-    result.splice(endIndex, 0, removed);
-  
-    return result;
-  };
-
-  // TAREAS
+  // TAREAS DnD
   const updatePosicionTareaMismaColumna = (tareaId, columnaId, posPrevia, posNueva) => {
     const tareaRef = doc(db, `tareas/${tareaId}`);
     const tareasColumna = query(tareasRef, where('columna', '==', columnaId));
@@ -141,14 +121,13 @@ function Tablero() {
     });
   }
 
-
   //onDragStart comun
   const onDragStart = (result) => {
     const id = result.draggableId;
     setDragId(id); 
   }
 
-  // onDragEnd comun 
+  // onDragEnd comun
   const onDragEnd = (result) => {
     const {source, destination} = result;
 
@@ -210,6 +189,14 @@ function Tablero() {
       }
     }
   }
+
+  const reorder = (list, startIndex, endIndex) => {
+    const result = [...list];
+    const [removed] = result.splice(startIndex, 1);
+    result.splice(endIndex, 0, removed);
+    
+    return result;
+  };
 
   // Condición para renderizar el componente Columna
   const columnasCargadas = Object.keys(columnasData).length > 0;
