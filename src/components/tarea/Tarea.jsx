@@ -11,7 +11,9 @@ const Tarea = ({ tarea, index }) => {
           ref={provided.innerRef}
           className="tarjeta"
         >
-          {tarea.nombreTarea}
+         {tarea.nombreTarea}<br />
+         {tarea.id}<br />
+         {tarea.posicion}
         </div>
       )}
     </Draggable>

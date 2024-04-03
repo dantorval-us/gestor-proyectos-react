@@ -3,11 +3,11 @@ import { useEffect, useState } from "react";
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd'
 import Columna from "../columna/Columna";
 import { useDataContext } from "../../context";
-import { getDocs, collection, orderBy, query, where, onSnapshot, doc, getDoc, runTransaction, updateDoc } from "firebase/firestore";
+import { getDocs, collection, orderBy, query, where, onSnapshot, doc, getDoc, runTransaction, updateDoc, writeBatch } from "firebase/firestore";
 
 function Tablero() {
 
-  const { db, columnasRef, proyecto, columnas, setColumnas, tareas } = useDataContext();
+  const { db, columnasRef, tareasRef, proyecto, columnas, setColumnas, tareas } = useDataContext();
   const [columnasData, setColumnasData] = useState({});
   const [dragId, setDragId] = useState(null);
 
@@ -34,14 +34,6 @@ function Tablero() {
     // console.log('(TABLERO) Tareas:', tareas);
     // console.log('(TABLERO) columnasData:', columnasData);
   }, [columnas, tareas, columnasData])
-
-  const reorder = (list, startIndex, endIndex) => {
-    const result = [...list];
-    const [removed] = result.splice(startIndex, 1);
-    result.splice(endIndex, 0, removed);
-  
-    return result;
-  };
 
   const getColumnaId = (columnasData, posicion) => {
     const keys = Object.keys(columnasData);
@@ -77,6 +69,78 @@ function Tablero() {
       transaction.update(columnaRef, { posicion: posNueva});
     });
   }
+
+  const reorder = (list, startIndex, endIndex) => {
+    const result = [...list];
+    const [removed] = result.splice(startIndex, 1);
+    result.splice(endIndex, 0, removed);
+  
+    return result;
+  };
+
+  // TAREAS
+  const updatePosicionTareaMismaColumna = (tareaId, columnaId, posPrevia, posNueva) => {
+    const tareaRef = doc(db, `tareas/${tareaId}`);
+    const tareasColumna = query(tareasRef, where('columna', '==', columnaId));
+
+    runTransaction(db, async (transaction) => {
+      // actualiza tareas intermedias
+      if(posPrevia < posNueva) { //hacia abajo
+        for(let i=posPrevia+1; i<=posNueva; i++ ) {
+          const q = query(tareasColumna, where("posicion", "==", i));
+          const querySnapshot = await getDocs(q);
+          querySnapshot.forEach(async (doc) => {
+            transaction.update(doc.ref, { posicion: i-1 });
+          })
+        }
+      } else { //hacia arriba
+        for(let i=posPrevia-1; i>=posNueva; i-- ) {
+          const q = query(tareasColumna, where("posicion", "==", i));
+          const querySnapshot = await getDocs(q);
+          querySnapshot.forEach(async (doc) => {
+            transaction.update(doc.ref, { posicion: i+1 });
+          })
+        }
+      }
+
+      // actualiza tarea seleccionada
+      transaction.update(tareaRef, { posicion: posNueva});
+    });
+  }
+
+  const updatePosicionTareaDistintaColumna = async (tareaId, colPreviaId, colNuevaId, posPrevia, posNueva) => {
+    const tareaRef = doc(db, `tareas/${tareaId}`);
+
+    runTransaction(db, async (transaction) => {
+      const batch = writeBatch(db);
+
+      // actualiza tareas afectadas columna origen
+      const qOrigen = query(collection(db, 'tareas'), where('columna', '==', colPreviaId), where('posicion', '>', posPrevia));
+      const queryOrigenSnapshot = await getDocs(qOrigen);
+      queryOrigenSnapshot.forEach((document) => {
+        const nuevaPosicion = document.data().posicion - 1;
+        const tareaAfectadaRef = doc(db, 'tareas', document.id);
+        batch.update(tareaAfectadaRef, { posicion: nuevaPosicion });
+      });
+      // actualiza tareas afectadas columna destino
+      const qDestino = query(collection(db, 'tareas'), where('columna', '==', colNuevaId), where('posicion', '>=', posNueva));
+      const queryDestinoSnapshot = await getDocs(qDestino);
+      queryDestinoSnapshot.forEach((document) => {
+        const nuevaPosicion = document.data().posicion + 1;
+        const tareaAfectadaRef = doc(db, 'tareas', document.id);
+        batch.update(tareaAfectadaRef, { posicion: nuevaPosicion });
+      });
+
+      await batch.commit();
+
+      // actualiza tarea seleccionada
+      transaction.update(tareaRef, { 
+        columna: colNuevaId,
+        posicion: posNueva
+      });
+    });
+  }
+
 
   //onDragStart comun
   const onDragStart = (result) => {
@@ -117,8 +181,9 @@ function Tablero() {
             tareas: nuevasTareas,
           },
         };
-
         setColumnasData(nuevasColumnasData);
+        updatePosicionTareaMismaColumna(tareaArrastrada.id, columnaOrigen.id, source.index+1, destination.index+1);
+
       } else {
         const columnaDestino = columnasData[destination.droppableId];
 
@@ -139,8 +204,9 @@ function Tablero() {
             tareas: nuevasTareasDestino,
           },
         };
-
         setColumnasData(nuevasColumnasData);
+        updatePosicionTareaDistintaColumna(tareaArrastrada.id, columnaOrigen.id, columnaDestino.id, source.index+1, destination.index+1);
+
       }
     }
   }

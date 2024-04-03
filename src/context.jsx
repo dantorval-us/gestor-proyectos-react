@@ -41,13 +41,13 @@ export function DataProvider({ children }) {
   }
 
   const getTareas = async (columnasIds) => {
-    const q = query(tareasRef, where('columna', 'in', columnasIds));
+    const q = query(tareasRef, where('columna', 'in', columnasIds), orderBy('posicion'));
     const snapshot = await getDocs(q);
     return snapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
   }
 
   return (
-    <dataContext.Provider value={{ db, columnasRef, proyecto, columnas, setColumnas, tareas }}>
+    <dataContext.Provider value={{ db, columnasRef, tareasRef, proyecto, columnas, setColumnas, tareas }}>
       {children}
     </dataContext.Provider>
   )
