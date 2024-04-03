@@ -7,6 +7,7 @@ const Columna = ({ columna, tareas }) => {
   return (
     <div className="columna-container">
       <h2>{columna.nombre}</h2>
+      <h4>{columna.id}</h4>
       <Droppable droppableId={columna.id} type="tarea">
         {(provided) => (
           <div 

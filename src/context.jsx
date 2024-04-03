@@ -34,10 +34,6 @@ export function DataProvider({ children }) {
     fetchData();
   }, [])
 
-  useEffect(() => {
-    console.log('columnas:', columnas);
-  }, [columnas])
-
   const getColumnas = async () => {
     const q = query(columnasRef, where('proyecto', '==', proyecto), orderBy('posicion'));
     const snapshot = await getDocs(q);
@@ -51,7 +47,7 @@ export function DataProvider({ children }) {
   }
 
   return (
-    <dataContext.Provider value={{ columnas, setColumnas, tareas }}>
+    <dataContext.Provider value={{ db, columnasRef, proyecto, columnas, setColumnas, tareas }}>
       {children}
     </dataContext.Provider>
   )

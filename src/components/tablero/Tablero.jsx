@@ -3,11 +3,13 @@ import { useEffect, useState } from "react";
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd'
 import Columna from "../columna/Columna";
 import { useDataContext } from "../../context";
+import { getDocs, collection, orderBy, query, where, onSnapshot, doc, getDoc, runTransaction, updateDoc } from "firebase/firestore";
 
 function Tablero() {
 
-  const { columnas, setColumnas, tareas } = useDataContext();
+  const { db, columnasRef, proyecto, columnas, setColumnas, tareas } = useDataContext();
   const [columnasData, setColumnasData] = useState({});
+  const [dragId, setDragId] = useState(null);
 
   // TAREAS
   const getTareasByColumnaId = (columnaId) => {
@@ -19,6 +21,7 @@ function Tablero() {
       data[columna.id] = {
         id: columna.id,
         nombre: columna.nombre,
+        posicion: columna.posicion,
         tareas: getTareasByColumnaId(columna.id),
       };
       return data;
@@ -40,7 +43,46 @@ function Tablero() {
     return result;
   };
 
+  const getColumnaId = (columnasData, posicion) => {
+    const keys = Object.keys(columnasData);
+    const columnaId = keys.find(key => columnasData[key].posicion === posicion);
+    return columnaId ? columnaId : null;
+  }
+
   // COLUMNAS
+  const updatePosicionColumna = (id, posPrevia, posNueva) => {
+    const columnaRef = doc(db,  `columnas/${id}`);
+    const colsProyecto = query(columnasRef, where('proyecto', '==', proyecto));
+
+    runTransaction(db, async (transaction) => {
+      // actualiza columnas intermedias
+      if(posPrevia < posNueva) {
+        for(let i=posPrevia+1; i<=posNueva; i++ ) {
+          const q = query(colsProyecto, where("posicion", "==", i));
+          const querySnapshot = await getDocs(q);
+          querySnapshot.forEach(async (doc) => {
+            transaction.update(doc.ref, { posicion: i-1 });
+          })
+        }
+      } else {
+        for(let i=posPrevia-1; i>=posNueva; i-- ) {
+          const q = query(colsProyecto, where("posicion", "==", i));
+          const querySnapshot = await getDocs(q);
+          querySnapshot.forEach(async (doc) => {
+            transaction.update(doc.ref, { posicion: i+1 });
+          })
+        }
+      }
+      // actualiza columna seleccionada
+      transaction.update(columnaRef, { posicion: posNueva});
+    });
+  }
+
+  //onDragStart comun
+  const onDragStart = (result) => {
+    const id = result.draggableId;
+    setDragId(id); 
+  }
 
   // onDragEnd comun 
   const onDragEnd = (result) => {
@@ -53,7 +95,8 @@ function Tablero() {
 
     // arrastro columna
     if(result.type === "columna") {
-      setColumnas(provColumnas => reorder(provColumnas, source.index, destination.index))
+      setColumnas(provColumnas => reorder(provColumnas, source.index, destination.index));
+      updatePosicionColumna(dragId, source.index+1, destination.index+1);
     }
 
     // arrastro tarea
@@ -108,7 +151,7 @@ function Tablero() {
   return (
     <div className="tablero-container">
       <h1>nombreProyecto mock</h1>
-      <DragDropContext onDragEnd={onDragEnd}>
+      <DragDropContext onDragStart={onDragStart} onDragEnd={onDragEnd}>
         <Droppable droppableId="columnas" direction="horizontal" type="columna">
           {(droppableProvided) => (
             <div 
