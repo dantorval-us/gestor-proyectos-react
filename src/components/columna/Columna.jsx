@@ -7,7 +7,6 @@ const Columna = ({ columna, tareas }) => {
   return (
     <div className="columna-container">
       <h2>{columna.nombre}</h2>
-      <h4>{columna.id}</h4>
       <Droppable droppableId={columna.id} type="tarea">
         {(provided) => (
           <div 
@@ -15,9 +14,11 @@ const Columna = ({ columna, tareas }) => {
             ref={provided.innerRef}
             className="tareas-container"
           >
-            {tareas.map((tarea, index) => (
-              <Tarea key={tarea.id} tarea={tarea} index={index}/>
-            ))}
+            {tareas.sort((a, b) => a.posicion - b.posicion).map((tarea, index) =>  //REORDENA TAREAS ANTES DE RENDERIZARLAS
+              {
+                return <Tarea key={tarea.id} tarea={tarea} index={index}/>
+              }
+            )}
             {provided.placeholder}
           </div>
         )}

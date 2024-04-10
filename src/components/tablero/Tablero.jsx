@@ -129,7 +129,7 @@ function Tablero() {
 
   // onDragEnd comun
   const onDragEnd = (result) => {
-    const {source, destination} = result;
+    const {source, destination, type} = result;
 
     if (!destination || 
       (source.droppableId === destination.droppableId &&
@@ -137,22 +137,27 @@ function Tablero() {
       {return};
 
     // arrastro columna
-    if(result.type === "columna") {
+    if(type === "columna") {
       setColumnas(provColumnas => reorder(provColumnas, source.index, destination.index));
       updatePosicionColumna(dragId, source.index+1, destination.index+1);
     }
 
     // arrastro tarea
-    if(result.type === "tarea") {
-
+    if(type === "tarea") {
       const columnaOrigen = columnasData[source.droppableId];
-      const tareaArrastrada = columnaOrigen.tareas[source.index];
 
       if (source.droppableId === destination.droppableId) {
+        /* ACTUALIZA DND */
         const nuevasTareas = Array.from(columnaOrigen.tareas);
-        nuevasTareas.splice(source.index, 1);
+        const tareaArrastrada = nuevasTareas.splice(source.index, 1)[0]; // Extrae la tarea arrastrada del array
         nuevasTareas.splice(destination.index, 0, tareaArrastrada);
-
+        // Actualiza las posiciones de las tareas en el array
+        nuevasTareas.forEach((tarea, index) => {
+          if (index >= Math.min(source.index, destination.index) && index <= Math.max(source.index, destination.index)) {
+            // Si la tarea está entre la posición original y la nueva posición de la tarea arrastrada, ajusta su posición
+            tarea.posicion = index + 1; // Suma 1 para que las posiciones comiencen desde 1 en lugar de 0
+          }
+        });
         const nuevasColumnasData = {
           ...columnasData,
           [source.droppableId]: {
@@ -161,31 +166,57 @@ function Tablero() {
           },
         };
         setColumnasData(nuevasColumnasData);
+        
+        /* ACTUALIZA POSICIONES BD */
         updatePosicionTareaMismaColumna(tareaArrastrada.id, columnaOrigen.id, source.index+1, destination.index+1);
 
       } else {
+        /* ACTUALIZA DND */
+        const tareaArrastrada = columnaOrigen.tareas[source.index];
         const columnaDestino = columnasData[destination.droppableId];
-
         const nuevasTareasOrigen = Array.from(columnaOrigen.tareas);
+        const nuevasTareasDestino = Array.from(columnaDestino.tareas);
+
+        // Remueve la tarea de la columna de origen
         nuevasTareasOrigen.splice(source.index, 1);
 
-        const nuevasTareasDestino = Array.from(columnaDestino.tareas);
+        // Inserta la tarea en la columna de destino en la posición especificada
         nuevasTareasDestino.splice(destination.index, 0, tareaArrastrada);
 
-        const nuevasColumnasData = {
-          ...columnasData,
-          [source.droppableId]: {
-            ...columnaOrigen,
-            tareas: nuevasTareasOrigen,
-          },
-          [destination.droppableId]: {
-            ...columnaDestino,
-            tareas: nuevasTareasDestino,
-          },
-        };
-        setColumnasData(nuevasColumnasData);
-        updatePosicionTareaDistintaColumna(tareaArrastrada.id, columnaOrigen.id, columnaDestino.id, source.index+1, destination.index+1);
+        // Actualiza las posiciones de las tareas en la columna de origen
+        nuevasTareasOrigen.forEach((tarea, index) => {
+            if (index >= source.index) {
+                tarea.posicion = index + 1; // Suma 1 para que las posiciones comiencen desde 1 en lugar de 0
+            }
+        });
 
+        // Actualiza las posiciones de las tareas en la columna de destino
+        nuevasTareasDestino.forEach((tarea, index) => {
+            tarea.posicion = index + 1; // Suma 1 para que las posiciones comiencen desde 1 en lugar de 0
+        });
+
+        // Actualiza las columnas de datos
+        const nuevasColumnasData = {
+            ...columnasData,
+            [source.droppableId]: {
+                ...columnaOrigen,
+                tareas: nuevasTareasOrigen,
+            },
+            [destination.droppableId]: {
+                ...columnaDestino,
+                tareas: nuevasTareasDestino,
+            },
+        };
+
+        // Actualiza el ID de la columna en la que se encuentra la tarea arrastrada
+        tareaArrastrada.columna = columnaDestino.id;
+
+        // Aplica los cambios en las columnas de datos
+        setColumnasData(nuevasColumnasData);
+
+
+        /* ACTUALIZA POSICIONES BD */
+        updatePosicionTareaDistintaColumna(tareaArrastrada.id, columnaOrigen.id, columnaDestino.id, source.index+1, destination.index+1);
       }
     }
   }
