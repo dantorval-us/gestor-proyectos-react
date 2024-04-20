@@ -1,20 +1,25 @@
-import { collection, deleteDoc, doc, getDoc, getDocs, query, updateDoc, where } from "firebase/firestore";
-import "./Tarea.css"
-import { Draggable } from "react-beautiful-dnd";
-import { db } from "../../firebase";
 import { useEffect, useRef, useState } from "react";
+import { collection, deleteDoc, doc, getDoc, getDocs, query, updateDoc, where } from "firebase/firestore";
+import { Draggable } from "react-beautiful-dnd";
+import "./Tarea.css"
+import { db } from "../../firebase";
+import { useDataContext } from "../../context/DataContext";
 import MenuUD from "../menu-UD/MenuUD";
 import { Box, Button, TextField } from "@mui/material";
 
-const Tarea = ({ tarea, index, onTareaDrag }) => {
+const Tarea = ({ tarea, index }) => {
 
+  const { deleteTareaCtxt } = useDataContext();
   const [modoEdicion, setModoEdicion] = useState(false);
   const [nombre, setNombre] = useState(tarea.nombreTarea);
-  const inputRef = useRef(null);
-
+  const inputRef = useRef(null); 
+  
   useEffect(() => {
     if (modoEdicion && inputRef.current) {
-      inputRef.current.focus();
+      const inputElement = inputRef.current.querySelector('input');
+      if (inputElement) {
+        inputElement.focus();
+      }
     }
   }, [modoEdicion]);
 
@@ -59,13 +64,25 @@ const Tarea = ({ tarea, index, onTareaDrag }) => {
   }
 
   const deleteTarea = async (id) => {
+    //Borra del estado:
+    deleteTareaCtxt(id);
+    //Borra de BD:
     const tareaRef = doc(db, `tareas/${id}`);
     await updateIndices(tareaRef);
     await deleteDoc(tareaRef);
   }
 
-  const handleClickDrag = () => {
-    onTareaDrag(tarea.id);
+  /* Tengo que mostrar y ocultar el componente MenuUD de esta manera
+  porque con CSS y display: none devuelve el siguiente error:
+  Failed prop type: MUI: The `anchorEl` prop provided to the component is invalid. */
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  const handleMouseEnter = () => {
+    setIsMenuOpen(true);
+  };
+
+  const handleMouseLeave = () => {
+    setIsMenuOpen(false);
   };
 
   return (
@@ -76,13 +93,14 @@ const Tarea = ({ tarea, index, onTareaDrag }) => {
           {...provided.dragHandleProps}
           ref={provided.innerRef}
           className="d-flex justify-content-between align-items-start tarjeta"
-          onMouseDown={handleClickDrag}
+          onMouseEnter={handleMouseEnter}
+          onMouseLeave={handleMouseLeave}
         >
           {!modoEdicion ?
-            <div className="h3-">{tarea.nombreTarea}</div>
+            <div className="h3-">{nombre}</div>
           :
             <>
-              <form>
+             <form>
                 <Box sx={{ display: 'flex', alignItems: 'flex-end' }}>
                   <TextField 
                     variant="standard" 
@@ -102,14 +120,16 @@ const Tarea = ({ tarea, index, onTareaDrag }) => {
               </form>
             </>
           }
-
+          
           {!modoEdicion &&
           <div className="menu-ud">
-            <MenuUD
-              vertical={true}
-              onUpdate={cambiarModoEdicion} 
-              onDelete={() => deleteTarea(tarea.id)}
-            />
+            {isMenuOpen && 
+              <MenuUD
+                vertical={true}
+                onUpdate={cambiarModoEdicion} 
+                onDelete={() => deleteTarea(tarea.id)}
+              />
+            }
           </div>
           }
         </div>

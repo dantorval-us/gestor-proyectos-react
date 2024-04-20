@@ -1,6 +1,6 @@
-import { useState } from "react";
-import { Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField } from "@mui/material";
+import { useState, useEffect } from "react";
 import { addDoc, getDocs, query, where } from "@firebase/firestore";
+import { Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField } from "@mui/material";
 
 function NuevaColumna ({ open, onClose, proyecto, columnasRef }) {
 
@@ -13,6 +13,15 @@ function NuevaColumna ({ open, onClose, proyecto, columnasRef }) {
   const [columnasAdd, setColumnasAdd] = useState(initialStateValues);
   const [campoTexto, setCampoTexto] = useState('');
   const [error, setError] = useState(false);
+  const [numColumnas, setNumColumnas] = useState();
+
+  useEffect(() => {
+    const fetchNumColumnas = async () => {
+      const numColumnas = await getNumColumnas();
+      setNumColumnas(numColumnas);
+    };
+    fetchNumColumnas();
+  }, []);
 
   const addColumna = async (columna) => {
     columna.posicion = await getPosicion();
@@ -42,8 +51,8 @@ function NuevaColumna ({ open, onClose, proyecto, columnasRef }) {
     setError(campoTexto === '' ? true : false);
     if (campoTexto !== '') {
       onClose();
-      addColumna(columnasAdd);
-      setColumnasAdd({...initialStateValues});
+      addColumna(columnasAdd); // persistir en BD
+      setColumnasAdd({...initialStateValues}); // toma de datos del form
     }
   };
 
@@ -77,7 +86,6 @@ function NuevaColumna ({ open, onClose, proyecto, columnasRef }) {
       </Dialog>
     </>
   );
-
 }
 
 export default NuevaColumna;

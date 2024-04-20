@@ -1,27 +1,28 @@
-import "./Columna.css"
-import { collection, deleteDoc, doc, getDoc, getDocs, onSnapshot, orderBy, query, updateDoc, where } from "firebase/firestore";
-import Tarea from "../tarea/Tarea";
+import { useState, useRef, useEffect } from 'react';
+import { collection, deleteDoc, doc, getDoc, getDocs, query, updateDoc, where } from 'firebase/firestore';
 import { Droppable } from 'react-beautiful-dnd'
-
-import { db } from "../../firebase";
-import { useEffect, useRef, useState } from "react";
+import { Box, Button, TextField } from '@mui/material';
+import "./Columna.css"
+import Tarea from "../tarea/Tarea";
 import NuevaTarea from "../nueva-tarea/NuevaTarea";
-import MenuUD from "../menu-UD/MenuUD";
-import { Box, Button, TextField } from "@mui/material";
+import MenuUD from '../menu-UD/MenuUD';
+import { db } from '../../firebase';
+import { useDataContext } from '../../context/DataContext';
 
-const Columna = ({ columna, onTareaDrag }) => {
+const Columna = ({ columna, tareas, tareasRef }) => {
 
-  const [tareas, setTareas] = useState([]);
-  const tareasRef = collection(db, 'tareas');
+  const { deleteColumnaCtxt } = useDataContext();
 
   const [modoEdicion, setModoEdicion] = useState(false);
   const [nombre, setNombre] = useState(columna.nombre);
   const inputRef = useRef(null);
 
   useEffect(() => {
-    getTareas();
     if (modoEdicion && inputRef.current) {
-      inputRef.current.focus();
+      const inputElement = inputRef.current.querySelector('input');
+      if (inputElement) {
+        inputElement.focus();
+      }
     }
   }, [modoEdicion]);
 
@@ -64,25 +65,20 @@ const Columna = ({ columna, onTareaDrag }) => {
   }
 
   const deleteColumna = async (id) => {
+    //Borra del estado:
+    deleteColumnaCtxt(id);
+    //Borra de BD:
     const columnaRef = doc(db, `columnas/${id}`);
     await updateIndices(columnaRef);
     await deleteDoc(columnaRef);
   };
 
-
   /* TAREAS */
-
   const getNumTareas = async () => {
     const q = query(tareasRef, where("columna", "==", columna.id));
     const querySnapshot = await getDocs(q);
     const numTareas = querySnapshot.size;
     return numTareas;
-  }
-
-  const getTareas = async () => {
-    const q = query(tareasRef, where("columna", "==", columna.id), orderBy("posicion")); 
-    onSnapshot(q, (snapshot) => 
-    setTareas(snapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id }))))
   }
 
   return (
@@ -115,14 +111,12 @@ const Columna = ({ columna, onTareaDrag }) => {
               </form>
             </>
           }
-          
           <MenuUD
             vertical={true}
             onUpdate={cambiarModoEdicion} 
             onDelete={() => deleteColumna(columna.id)}
           />
-        </div> 
-
+        </div>
         <Droppable droppableId={columna.id} type="tarea">
           {(provided) => (
             <div 
@@ -130,13 +124,9 @@ const Columna = ({ columna, onTareaDrag }) => {
               ref={provided.innerRef}
               className="tareas-container"
             >
-              {tareas.map((tarea, index) => (
-                <Tarea 
-                  key={tarea.id} 
-                  tarea={tarea} 
-                  index={index}
-                  onTareaDrag={onTareaDrag}
-                />
+              { // Reordena tareas antes de renderizarlas
+              tareas.sort((a, b) => a.posicion - b.posicion).map((tarea, index) => (
+                <Tarea key={tarea.id} tarea={tarea} index={index}/>
               ))}
               {provided.placeholder}
             </div>
@@ -145,8 +135,13 @@ const Columna = ({ columna, onTareaDrag }) => {
       </div>
 
       <div className="pie">
-        <NuevaTarea columna={columna.id} numTareas={getNumTareas} tareasRef={tareasRef}/>
+        <NuevaTarea 
+          columna={columna.id} 
+          numTareas={getNumTareas} 
+          tareasRef={tareasRef}
+        />
       </div>
+
     </div>
   );
 };
