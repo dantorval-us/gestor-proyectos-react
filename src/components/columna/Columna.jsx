@@ -1,7 +1,8 @@
 import { useState, useRef, useEffect } from 'react';
 import { collection, deleteDoc, doc, getDoc, getDocs, query, updateDoc, where } from 'firebase/firestore';
 import { Droppable } from 'react-beautiful-dnd'
-import { Box, Button, TextField } from '@mui/material';
+import { Box, IconButton, InputAdornment, TextField } from '@mui/material';
+import CheckIcon from '@mui/icons-material/Check';
 import "./Columna.css"
 import Tarea from "../tarea/Tarea";
 import NuevaTarea from "../nueva-tarea/NuevaTarea";
@@ -86,9 +87,16 @@ const Columna = ({ columna, tareas, tareasRef }) => {
       <div className="cuerpo">
         <div className="d-flex justify-content-between cabecera">
           {!modoEdicion ? 
-            <h2 className="h2-columna" onDoubleClick={cambiarModoEdicion}>
-              {nombre} 
-            </h2>
+            <>
+              <h2 className="h2-columna" onDoubleClick={cambiarModoEdicion}>
+                {nombre} 
+              </h2>
+              <MenuUD
+                vertical={true}
+                onUpdate={cambiarModoEdicion} 
+                onDelete={() => deleteColumna(columna.id)}
+              />
+            </>
           :
             <>
               <form>
@@ -99,23 +107,24 @@ const Columna = ({ columna, tareas, tareasRef }) => {
                     value={nombre}
                     onChange={updateNombre}
                     onKeyDown={enterToUpdateNombre}
+                    onBlur={cambiarModoEdicion}
                     ref={inputRef}
+                    InputProps={{
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          <IconButton color="primary" className="btn-cuadrado" 
+                            onMouseDown={() => {updateNombreBD(columna.id, nombre)}}
+                          >
+                            <CheckIcon className="check-icon-nueva-tarea"/>
+                          </IconButton>
+                        </InputAdornment>
+                      )
+                    }}
                   />
-                  <Button 
-                    className="btn-update" 
-                    onClick={() => {updateNombreBD(columna.id, nombre)}}
-                  >
-                    ✓
-                  </Button>
                 </Box>
               </form>
             </>
           }
-          <MenuUD
-            vertical={true}
-            onUpdate={cambiarModoEdicion} 
-            onDelete={() => deleteColumna(columna.id)}
-          />
         </div>
         <Droppable droppableId={columna.id} type="tarea">
           {(provided) => (

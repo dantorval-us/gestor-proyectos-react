@@ -290,11 +290,12 @@ function Tablero() {
                   >
                     {columnasCargadas && columnas.map((columna, index) => (
                       <Draggable draggableId={columna.id} key={columna.id} index={index}>
-                        {(draggableProvided) => (
+                        {(draggableProvided, snapshot) => (
                           <div
                             {...draggableProvided.draggableProps}
                             ref={draggableProvided.innerRef}
                             {...draggableProvided.dragHandleProps}
+                            className={`columna-box ${snapshot.isDragging ? 'dragging-columna' : ''}`}
                           >
                             {columnasData[columna.id] ? (
                               <Columna 

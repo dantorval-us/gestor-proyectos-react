@@ -1,10 +1,11 @@
-import "./Proyecto.css"
 import { useState, useRef, useEffect } from "react";
 import { deleteDoc, doc, updateDoc } from "firebase/firestore";
+import { Box, IconButton, InputAdornment, TextField } from "@mui/material";
+import ViewKanbanOutlinedIcon from '@mui/icons-material/ViewKanbanOutlined';
+import CheckIcon from '@mui/icons-material/Check';
+import "./Proyecto.css"
 import { db } from "../../firebase";
 import MenuUD from "../menu-UD/MenuUD";
-import ViewKanbanOutlinedIcon from '@mui/icons-material/ViewKanbanOutlined';
-import { Box, Button, TextField } from "@mui/material";
 
 const Proyecto = ({ proyecto }) => {
 
@@ -14,7 +15,10 @@ const Proyecto = ({ proyecto }) => {
 
   useEffect(() => {
     if (modoEdicion && inputRef.current) {
-      inputRef.current.focus();
+      const inputElement = inputRef.current.querySelector('input');
+      if (inputElement) {
+        inputElement.focus();
+      }
     }
   }, [modoEdicion]);
 
@@ -67,7 +71,6 @@ const Proyecto = ({ proyecto }) => {
         <>
           <form>
             <Box sx={{ display: 'flex', alignItems: 'flex-end' }}>
-              <ViewKanbanOutlinedIcon sx={{ color: 'var(--secondary-color)', my: 0.8, mr: 1.5 }} />
               <TextField 
                 variant="standard" 
                 className="textfield-update-nombre"
@@ -75,12 +78,28 @@ const Proyecto = ({ proyecto }) => {
                 onClick={preventDefault}
                 onChange={updateNombre}
                 onKeyDown={enterToUpdateNombre}
+                onBlur={handleUpdate}
                 ref={inputRef}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <ViewKanbanOutlinedIcon sx={{ color: 'var(--secondary-color)', my: 0.8, mr: 1.5 }} />
+                    </InputAdornment>
+                  ),
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton color="primary" className="btn-cuadrado" 
+                        onMouseDown={(e) => {
+                          e.preventDefault();
+                          updateNombreBD(proyecto.id, nombre);
+                        }}
+                      >
+                        <CheckIcon className="check-icon-nueva-tarea"/>
+                      </IconButton>
+                    </InputAdornment>
+                  )
+                }}
               />
-              <Button className="btn-update" onClick={(e) => {
-                e.preventDefault();
-                updateNombreBD(proyecto.id, nombre);
-              }}>✓</Button>
             </Box>
           </form>
         </>

@@ -1,11 +1,12 @@
 import { useEffect, useRef, useState } from "react";
 import { collection, deleteDoc, doc, getDoc, getDocs, query, updateDoc, where } from "firebase/firestore";
 import { Draggable } from "react-beautiful-dnd";
+import { Box, IconButton, InputAdornment, TextField } from "@mui/material";
+import CheckIcon from '@mui/icons-material/Check';
 import "./Tarea.css"
 import { db } from "../../firebase";
 import { useDataContext } from "../../context/DataContext";
 import MenuUD from "../menu-UD/MenuUD";
-import { Box, Button, TextField } from "@mui/material";
 
 const Tarea = ({ tarea, index }) => {
 
@@ -97,7 +98,9 @@ const Tarea = ({ tarea, index }) => {
           onMouseLeave={handleMouseLeave}
         >
           {!modoEdicion ?
-            <div className="h3-">{nombre}</div>
+            <div className="h3-" onDoubleClick={cambiarModoEdicion}>
+              {nombre}
+            </div>
           :
             <>
              <form>
@@ -108,14 +111,20 @@ const Tarea = ({ tarea, index }) => {
                     value={nombre}
                     onChange={updateNombre}
                     onKeyDown={enterToUpdateNombre}
+                    onBlur={cambiarModoEdicion}
                     ref={inputRef}
+                    InputProps={{
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          <IconButton color="primary" className="btn-cuadrado" 
+                            onMouseDown={() => updateNombreBD(tarea.id, nombre)}
+                          >
+                            <CheckIcon className="check-icon-nueva-tarea"/>
+                          </IconButton>
+                        </InputAdornment>
+                      )
+                    }}
                   />
-                  <Button 
-                    className="btn-update" 
-                    onClick={() => updateNombreBD(tarea.id, nombre)}
-                  >
-                    ✓
-                  </Button>
                 </Box>
               </form>
             </>

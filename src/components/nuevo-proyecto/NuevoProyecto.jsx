@@ -2,8 +2,9 @@ import "./NuevoProyecto.css"
 import { useState } from "react";
 import { auth, db } from "../../firebase";
 import { addDoc, collection } from "firebase/firestore";
-import { Box, Button, Dialog, DialogActions, DialogContent, DialogContentText, TextField } from "@mui/material";
+import { Box, Button, Dialog, DialogActions, DialogContent, DialogContentText, IconButton, InputAdornment, TextField } from "@mui/material";
 import PlaylistAddIcon from '@mui/icons-material/PlaylistAdd';
+import CheckIcon from '@mui/icons-material/Check';
 
 const NuevoProyecto = ({ open, onClose, numProyectos }) => {
 
@@ -16,6 +17,7 @@ const NuevoProyecto = ({ open, onClose, numProyectos }) => {
   const [proyecto, setProyecto] = useState(initialStateValuesProyecto);
   const [campoTexto, setCampoTexto] = useState('');
   const [error, setError] = useState(false);
+  const [selectedTextField, setSelectedTextField] = useState(false);
 
   const addProyecto = async proyecto => {
     proyecto.usuario = usuario.uid;
@@ -38,21 +40,43 @@ const NuevoProyecto = ({ open, onClose, numProyectos }) => {
     setProyecto({nombre: value});
   }
 
+  const handleFocus = () => {
+    setSelectedTextField(true);
+  };
+
+  const handleBlur = () => {
+    setSelectedTextField(false);
+  };
+
   return (
     <>
       {numProyectos!==0 &&
         <div id="crear-tablero-btn">
           <form onSubmit={handleSubmit}>
             <Box sx={{ display: 'flex', alignItems: 'flex-end' }}>
-              <PlaylistAddIcon sx={{ color: 'active', my: 0.6 }} />
               <TextField 
                 id="nuevo-tablero" 
-                label="Crear nuevo tablero" 
+                label={
+                  <div>
+                      {!selectedTextField && <PlaylistAddIcon />}
+                      {!selectedTextField ? "Crear nuevo tablero" : "Nombre del tablero"}
+                  </div>
+                }
                 variant="standard" 
                 className="textfield-label"
-                placeholder="Nombre" 
                 value={proyecto.nombre}
                 onChange={handleInput}
+                onFocus={handleFocus}
+                onBlur={handleBlur}
+                InputProps={{
+                  endAdornment: selectedTextField && (
+                    <InputAdornment position="end">
+                      <IconButton color="primary" className="btn-cuadrado" onMouseDown={handleSubmit}>
+                        <CheckIcon className="check-icon-nueva-tarea"/>
+                      </IconButton>
+                    </InputAdornment>
+                  )
+                }}
               />
             </Box>
           </form>

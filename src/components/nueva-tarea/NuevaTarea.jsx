@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { addDoc, getDocs, collection } from "@firebase/firestore";
-import { Box, TextField } from "@mui/material";
+import { IconButton, InputAdornment, TextField } from "@mui/material";
 import AddIcon from '@mui/icons-material/Add';
+import CheckIcon from '@mui/icons-material/Check';
 import "./NuevaTarea.css"
 import { useDataContext } from "../../context/DataContext";
 
@@ -13,6 +14,7 @@ function NuevaTarea ({ columna, numTareas, tareasRef }) {
     posicion: ""
   };
   const [tareasAdd, setTareasAdd] = useState(initialStateValuesTareas);
+  const [selectedTextField, setSelectedTextField] = useState(false);
 
   const addTarea = async (tarea) => {
     tarea.columna = columna;
@@ -47,21 +49,42 @@ function NuevaTarea ({ columna, numTareas, tareasRef }) {
     addTarea(tareasAdd);
   };
 
+  const handleFocus = () => {
+    setSelectedTextField(true);
+  };
+  const handleBlur = () => {
+    setSelectedTextField(false);
+  };
+  
   return (
     <div>
       <form onSubmit={handleSubmit}>
-        <Box sx={{ display: 'flex', alignItems: 'flex-end' }}>
-          <AddIcon sx={{ my: 0.6 }} />
+        <div className="crear-tarea-container">
           <TextField 
-            id="nueva-tarea" 
-            label="Añadir tarea" 
+            id={`nueva-tarea-${columna}`}
+            label={
+              <div>
+                  {!selectedTextField && <AddIcon />}
+                  {!selectedTextField ? "Añadir tarea" : "Nombre de la tarea"}
+              </div>
+            }
             variant="standard" 
             className="textfield-label-tarea"
-            placeholder="Nombre" 
             value={tareasAdd.nombreTarea}
             onChange={handleInput}
+            onFocus={handleFocus}
+            onBlur={handleBlur}
+            InputProps={{
+              endAdornment: selectedTextField && (
+                <InputAdornment position="end">
+                  <IconButton color="primary" className="btn-cuadrado" onMouseDown={handleSubmit}>
+                    <CheckIcon className="check-icon-nueva-tarea"/>
+                  </IconButton>
+                </InputAdornment>
+              )
+            }}
           />
-        </Box>
+        </div>
       </form>
     </div>
   );
