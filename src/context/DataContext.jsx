@@ -59,7 +59,7 @@ export function DataProvider({ children }) {
     <dataContext.Provider 
       value={{ 
         db, columnasRef, tareasRef, 
-        setProyecto, 
+        proyecto, setProyecto, 
         columnas, setColumnas, deleteColumnaCtxt,
         tareas, setTareas, deleteTareaCtxt 
       }}>
