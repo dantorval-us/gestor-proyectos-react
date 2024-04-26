@@ -26,6 +26,11 @@ header a:hover {
   color: black;
 }
 
+.react-logo, .react-logo img {
+  width: 1em;
+  height: 1em;
+}
+
 .desconectar:hover {
   color: var(--danger-color) !important;
   cursor: pointer;

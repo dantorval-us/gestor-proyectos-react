@@ -7,10 +7,9 @@ import Login from './components/login/Login';
 import { useAuth } from "./context/AuthContext";
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { auth } from './firebase';
+import reactLogo from "./assets/images/react-logo.png";
 
 function App() {
-
-  const titulo = 'Gestor de proyectos';
 
   const user = auth.currentUser;
 
@@ -29,7 +28,15 @@ function App() {
     <div className="App">
       {!isLoginPage ?
       <header className="d-flex mb-3 align-items-center">
-        <h1 className="p-2">{titulo}</h1>
+        <h1 class="p-2">
+          <strong>
+            Kanban B
+            <span className="react-logo">
+              <img src={reactLogo} />
+            </span>
+            ards
+          </strong>
+        </h1>
         <Link to="/" className="p-2">Panel</Link>
         <span className="ms-auto p-2 desconectar" onClick={handleLogout}>
           <IoIosLogOut />&nbsp;<span>Desconectar</span>
