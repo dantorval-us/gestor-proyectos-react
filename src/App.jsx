@@ -28,7 +28,7 @@ function App() {
     <div className="App">
       {!isLoginPage ?
       <header className="d-flex mb-3 align-items-center">
-        <h1 class="p-2">
+        <h1 className="p-2">
           <strong>
             Kanban B
             <span className="react-logo">

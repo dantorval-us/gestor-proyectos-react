@@ -1,0 +1,35 @@
+.text-area-desc {
+  border-color: var(--secondary-color);
+  width: 100%;
+  resize: none;
+}
+
+.nombre-proy-dialog {
+  display: flex;
+  align-items: center;
+}
+
+.nombre-proy-dialog:hover {
+  color: black;
+}
+
+.textfield-edit-proy {
+  width: 100%;
+}
+
+.edit-icon-edit-proy {
+  font-size: 1rem !important;
+  margin-left: auto;
+}
+
+.nombre-proy-dialog .edit-icon-edit-proy {
+  display: none;
+}
+
+.nombre-proy-dialog:hover .edit-icon-edit-proy {
+  display: inline-block;
+}
+
+.css-nxo287-MuiInputBase-input-MuiOutlinedInput-input {
+  margin: -12px !important;
+}

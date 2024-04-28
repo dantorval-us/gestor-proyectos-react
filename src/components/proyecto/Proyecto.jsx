@@ -1,32 +1,26 @@
 import { useState, useRef, useEffect } from "react";
 import { deleteDoc, doc, updateDoc } from "firebase/firestore";
-import { Box, IconButton, InputAdornment, TextField } from "@mui/material";
 import ViewKanbanOutlinedIcon from '@mui/icons-material/ViewKanbanOutlined';
-import CheckIcon from '@mui/icons-material/Check';
 import "./Proyecto.css"
 import { db } from "../../firebase";
 import MenuUD from "../menu-UD/MenuUD";
+import EditarProyecto from "../editar-proyecto/EditarProyecto";
 
 const Proyecto = ({ proyecto }) => {
 
-  const [modoEdicion, setModoEdicion] = useState(false);
   const [nombre, setNombre] = useState(proyecto.nombre);
-  const inputRef = useRef(null);
+  const [descripcion, setDescripcion] = useState(proyecto.descripcion);
+  const proyectoRef = doc(db,  `proyectos/${proyecto.id}`);
 
-  useEffect(() => {
-    if (modoEdicion && inputRef.current) {
-      const inputElement = inputRef.current.querySelector('input');
-      if (inputElement) {
-        inputElement.focus();
-      }
-    }
-  }, [modoEdicion]);
-
-  const updateNombreBD = async (id, nuevoNombre) => {
-    setModoEdicion(!modoEdicion);
-    const proyectoRef = doc(db,  `proyectos/${id}`);
+  const updateNombreBD = async (nuevoNombre) => {
     await updateDoc(proyectoRef, {
       nombre: nuevoNombre,
+    });
+  }
+
+  const updateDescripcionBD = async (nuevaDescripcion) => {
+    await updateDoc(proyectoRef, {
+      descripcion: nuevaDescripcion,
     });
   }
 
@@ -36,12 +30,12 @@ const Proyecto = ({ proyecto }) => {
 
   const enterToUpdateNombre = async (e) => {
     if (e.key === 'Enter') {
-      updateNombreBD(proyecto.id, nombre);
+      updateNombreBD(nombre);
     }
   }
 
   const handleUpdate = async () => {
-    setModoEdicion(!modoEdicion);
+    handleClickOpen(); 
   }
 
   const deleteProyecto = async (id) => {
@@ -58,59 +52,47 @@ const Proyecto = ({ proyecto }) => {
     e.preventDefault();
   }
 
+   /* Material UI Dialog */
+   const [open, setOpen] = useState(false);
+
+   const handleClickOpen = () => {
+     setOpen(true);
+   };
+ 
+   const handleClose = () => {
+     setOpen(false);
+   };
+
   return (
-    <div className="d-flex justify-content-between">
-      {!modoEdicion ? 
-      <div className="d-flex justify-content-between align-items-center">
+    <>
+      <div className="d-flex align-self-start">
         <span className="i">
           <ViewKanbanOutlinedIcon />&nbsp;&nbsp;
         </span>
-        <h2 className="h2-">{nombre}</h2>
+        <div className="d-flex flex-column justify-content-center atrib-proy">
+          <h2 className="h2-">{nombre}</h2>
+          <p className="p-proyecto">{descripcion}</p>
+        </div>
+        <div className="ms-auto">
+          <MenuUD
+            vertical={false}
+            onUpdate={handleUpdate} 
+            onDelete={handleDelete}
+          />
+        </div>
       </div>
-      :
-        <>
-          <form>
-            <Box sx={{ display: 'flex', alignItems: 'flex-end' }}>
-              <TextField 
-                variant="standard" 
-                className="textfield-update-nombre"
-                value={nombre}
-                onClick={preventDefault}
-                onChange={updateNombre}
-                onKeyDown={enterToUpdateNombre}
-                onBlur={handleUpdate}
-                ref={inputRef}
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <ViewKanbanOutlinedIcon sx={{ color: 'var(--secondary-color)', my: 0.8, mr: 1.5 }} />
-                    </InputAdornment>
-                  ),
-                  endAdornment: (
-                    <InputAdornment position="end">
-                      <IconButton color="primary" className="btn-cuadrado" 
-                        onMouseDown={(e) => {
-                          e.preventDefault();
-                          updateNombreBD(proyecto.id, nombre);
-                        }}
-                      >
-                        <CheckIcon className="check-icon-nueva-tarea"/>
-                      </IconButton>
-                    </InputAdornment>
-                  )
-                }}
-              />
-            </Box>
-          </form>
-        </>
-      }
 
-      <MenuUD
-        vertical={false}
-        onUpdate={handleUpdate} 
-        onDelete={handleDelete}
+      <EditarProyecto 
+        open={open}
+        onClose={handleClose}
+        nombreProyecto={nombre}
+        setNombreProyecto={setNombre}
+        descripcion={descripcion}
+        setDescripcion={setDescripcion}
+        updateNombreBD={updateNombreBD}
+        updateDescripcionBD={updateDescripcionBD}
       />
-    </div>
+    </>
   );
   
 };

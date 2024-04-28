@@ -40,7 +40,7 @@ function MenuUD ({ vertical, onUpdate, onDelete }) {
           <ListItemIcon>
             <EditIcon />
           </ListItemIcon>
-          <ListItemText>Renombrar</ListItemText>
+          <ListItemText>Editar</ListItemText>
         </MenuItem>
         <MenuItem className="eliminar" onClick={onDelete}>
           <ListItemIcon>
