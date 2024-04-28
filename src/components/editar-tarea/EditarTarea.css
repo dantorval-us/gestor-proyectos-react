@@ -1,0 +1,25 @@
+.nombre-tarea-dialog {
+  display: flex;
+  align-items: center;
+}
+
+.nombre-tarea-dialog:hover {
+  color: black;
+}
+
+.edit-icon-edit-tarea {
+  font-size: 1rem !important;
+  margin-left: auto;
+}
+
+.nombre-tarea-dialog .edit-icon-edit-tarea {
+  display: none;
+}
+
+.nombre-tarea-dialog:hover .edit-icon-edit-tarea {
+  display: inline-block;
+}
+
+.textfield-edit-tarea {
+  width: 100%;
+}

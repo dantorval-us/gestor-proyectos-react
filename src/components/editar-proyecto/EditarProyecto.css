@@ -1,9 +1,3 @@
-.text-area-desc {
-  border-color: var(--secondary-color);
-  width: 100%;
-  resize: none;
-}
-
 .nombre-proy-dialog {
   display: flex;
   align-items: center;
@@ -28,8 +22,4 @@
 
 .nombre-proy-dialog:hover .edit-icon-edit-proy {
   display: inline-block;
-}
-
-.css-nxo287-MuiInputBase-input-MuiOutlinedInput-input {
-  margin: -12px !important;
 }

@@ -2,17 +2,17 @@ import { useState, useEffect, useRef } from "react";
 import { Button, Dialog, DialogActions, DialogContent, DialogTitle, IconButton, InputAdornment, TextField, TextareaAutosize } from "@mui/material";
 import CheckIcon from '@mui/icons-material/Check';
 import EditIcon from '@mui/icons-material/Edit';
-import "./EditarProyecto.css"
+import "./EditarTarea.css"
 
-function EditarProyecto ({ open, onClose, nombreProyecto, setNombreProyecto, descripcion, setDescripcion, updateNombreBD, updateDescripcionBD }) {
+function EditarTarea ({ open, onClose, nombreTarea, setNombreTarea, updateNombreBD, descripcion, setDescripcion, updateDescripcionBD }) {
 
-  const [nombre, setNombre] = useState(nombreProyecto);
+  const [nombre, setNombre] = useState(nombreTarea);
   const [texto, setTexto] = useState(descripcion);
   const [editNombre, setEditNombre] = useState(false);
   const textFieldRef = useRef(null);
 
   useEffect(() => {
-    setNombre(nombreProyecto);
+    setNombre(nombreTarea);
   }, [open])
 
   useEffect(() => {
@@ -36,7 +36,7 @@ function EditarProyecto ({ open, onClose, nombreProyecto, setNombreProyecto, des
   const handleSubmit = (e) => {
     e.preventDefault();
     onClose();
-    setNombreProyecto(nombre)
+    setNombreTarea(nombre)
     updateNombreBD(nombre);
     setDescripcion(texto);
     updateDescripcionBD(texto);
@@ -58,14 +58,14 @@ function EditarProyecto ({ open, onClose, nombreProyecto, setNombreProyecto, des
           onClick={(e) => e.stopPropagation()}
         >
           {!editNombre ?
-            <DialogTitle className="nombre-proy-dialog" onClick={cambiarEditNombre}>
+            <DialogTitle className="nombre-tarea-dialog" onClick={cambiarEditNombre}>
               {nombre}
-              <EditIcon className="edit-icon-edit-proy"/>
+              <EditIcon className="edit-icon-edit-tarea"/>
             </DialogTitle>
-          :
+          : 
             <DialogTitle>
               <TextField
-                className="textfield-edit-proy"
+                className="textfield-edit-tarea"
                 value={nombre}
                 onChange={updateNombre}
                 inputRef={textFieldRef}
@@ -100,10 +100,10 @@ function EditarProyecto ({ open, onClose, nombreProyecto, setNombreProyecto, des
             <Button onClick={onClose}>Cancelar</Button>
             <Button type="submit">Guardar</Button>
           </DialogActions>
-        </form>
+        </form> 
       </Dialog>
     </>
   );
 }
 
-export default EditarProyecto;
+export default EditarTarea;

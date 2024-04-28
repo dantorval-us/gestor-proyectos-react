@@ -53,6 +53,12 @@ header a:hover {
   min-width: 0 !important;
 }
 
+.textarea-descripcion {
+  border-color: var(--secondary-color);
+  width: 100%;
+  resize: none;
+}
+
 .MuiDialogActions-root {
   margin: 0 1rem 1rem 1rem;
 }
@@ -63,6 +69,10 @@ header a:hover {
 
 .MuiDialogActions-root button:first-child {
   color: var(--danger-color);
+}
+
+.css-nxo287-MuiInputBase-input-MuiOutlinedInput-input {
+  margin: -12px !important;
 }
 
 @media screen and (max-width: 820px) {

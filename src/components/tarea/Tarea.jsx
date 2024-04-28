@@ -1,54 +1,49 @@
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { collection, deleteDoc, doc, getDoc, getDocs, query, updateDoc, where } from "firebase/firestore";
 import { Draggable } from "react-beautiful-dnd";
-import { Box, IconButton, InputAdornment, TextField } from "@mui/material";
-import CheckIcon from '@mui/icons-material/Check';
+import NotesIcon from '@mui/icons-material/Notes';
+import Tooltip from '@mui/material/Tooltip';
 import "./Tarea.css"
 import { db } from "../../firebase";
 import { useDataContext } from "../../context/DataContext";
 import MenuUD from "../menu-UD/MenuUD";
+import EditarTarea from "../editar-tarea/EditarTarea";
 
 const Tarea = ({ tarea, index }) => {
 
   const { deleteTareaCtxt } = useDataContext();
-  const [modoEdicion, setModoEdicion] = useState(false);
   const [nombre, setNombre] = useState(tarea.nombreTarea);
-  const inputRef = useRef(null); 
+  const [descripcion, setDescripcion] = useState(tarea.descripcion);
+  const tareaRef = doc(db, `tareas/${tarea.id}`);
   
-  useEffect(() => {
-    if (modoEdicion && inputRef.current) {
-      const inputElement = inputRef.current.querySelector('input');
-      if (inputElement) {
-        inputElement.focus();
-      }
-    }
-  }, [modoEdicion]);
-
   /* UPDATES */
-  const cambiarModoEdicion = () => {
-    setModoEdicion(!modoEdicion);
-  };
+
+  const handleUpdate = async () => {
+    handleClickOpen(); 
+  }
 
   const updateNombre = (event) => {
     setNombre(event.target.value);
   };
 
   // Persistir en BD
-  const updateNombreBD = async (id, nuevoNombre) => {
-    cambiarModoEdicion();
-    const tareaRef = doc(db,  `tareas/${id}`);
+  const updateNombreBD = async (nuevoNombre) => {
     await updateDoc(tareaRef, {
       nombreTarea: nuevoNombre,
     });
   };
 
-  const enterToUpdateNombre = async (event) => {
-    if (event.key === 'Enter') {
-      updateNombreBD(tarea.id, nombre);
-    }
-  };
+  const updateDescripcionBD = async (nuevaDescripcion) => {
+    await updateDoc(tareaRef, {
+      descripcion: nuevaDescripcion,
+    });
+  }
 
   /* DELETE */
+  const handleDelete = () => {
+    deleteTarea(tarea.id);
+  }
+
   const updateIndices = async (tareaRef) => {
     const tareaSnapshot = await getDoc(tareaRef);
     const { posicion, columna } = tareaSnapshot.data();
@@ -86,64 +81,63 @@ const Tarea = ({ tarea, index }) => {
     setIsMenuOpen(false);
   };
 
+  /* Material UI Dialog */
+  const [open, setOpen] = useState(false);
+
+  const handleClickOpen = () => {
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+  };
+
   return (
-    <Draggable draggableId={tarea.id} index={index}>
-      {(provided) => (
-        <div
-          {...provided.draggableProps}
-          {...provided.dragHandleProps}
-          ref={provided.innerRef}
-          className="d-flex justify-content-between align-items-start tarjeta"
-          onMouseEnter={handleMouseEnter}
-          onMouseLeave={handleMouseLeave}
-        >
-          {!modoEdicion ?
-            <div className="h3-" onDoubleClick={cambiarModoEdicion}>
-              {nombre}
+    <>
+      <Draggable draggableId={tarea.id} index={index}>
+        {(provided) => (
+          <div
+            {...provided.draggableProps}
+            {...provided.dragHandleProps}
+            ref={provided.innerRef}
+            className="d-flex justify-content-between tarjeta"
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
+          >
+            <div className="d-flex flex-column justify-content-center atrib-tarea">
+              <div className="h3-" onDoubleClick={handleUpdate}>
+                {nombre}
+              </div>
+              {descripcion &&
+                <Tooltip title="Esta tarea cuenta con una descripción.">
+                  <NotesIcon className="notes-icon-desc-tarea" onClick={handleUpdate}/>
+                </Tooltip>
+              }
             </div>
-          :
-            <>
-             <form>
-                <Box sx={{ display: 'flex', alignItems: 'flex-end' }}>
-                  <TextField 
-                    variant="standard" 
-                    className="textfield-update-nombre"
-                    value={nombre}
-                    onChange={updateNombre}
-                    onKeyDown={enterToUpdateNombre}
-                    onBlur={cambiarModoEdicion}
-                    ref={inputRef}
-                    InputProps={{
-                      endAdornment: (
-                        <InputAdornment position="end">
-                          <IconButton color="primary" className="btn-cuadrado" 
-                            onMouseDown={() => updateNombreBD(tarea.id, nombre)}
-                          >
-                            <CheckIcon className="check-icon-nueva-tarea"/>
-                          </IconButton>
-                        </InputAdornment>
-                      )
-                    }}
-                  />
-                </Box>
-              </form>
-            </>
-          }
-          
-          {!modoEdicion &&
-          <div className="menu-ud">
-            {isMenuOpen && 
-              <MenuUD
-                vertical={true}
-                onUpdate={cambiarModoEdicion} 
-                onDelete={() => deleteTarea(tarea.id)}
-              />
-            }
+            <div className="menu-ud align-self-start">
+              {isMenuOpen && 
+                <MenuUD
+                  vertical={true}
+                  onUpdate={handleUpdate} 
+                  onDelete={handleDelete}
+                />
+              }
+            </div>
           </div>
-          }
-        </div>
-      )}
-    </Draggable>
+        )}
+      </Draggable>
+
+      <EditarTarea 
+        open={open}
+        onClose={handleClose}
+        nombreTarea={nombre}
+        setNombreTarea={setNombre}
+        descripcion={descripcion}
+        setDescripcion={setDescripcion}
+        updateNombreBD={updateNombreBD}
+        updateDescripcionBD={updateDescripcionBD}
+      />
+    </>
   );
 };
 

@@ -1,6 +1,5 @@
 .h3- {
   margin-bottom: 0;
-  padding-left: 1rem;
   overflow: hidden;
   inline-size: 150px;
   overflow-wrap: break-word;
@@ -35,4 +34,16 @@
               0 8px 10px 1px rgba(0, 0, 0, 0.14),
               0 3px 14px 2px rgba(0, 0, 0, 0.12);
   cursor: grabbing;
+}
+
+.atrib-tarea {
+  padding-left: 1rem;
+  text-align: left;
+  max-width: 75%;
+}
+
+.notes-icon-desc-tarea {
+  color: rgb(150, 150, 150);
+  width: 1.1rem !important;
+  cursor: pointer;
 }
