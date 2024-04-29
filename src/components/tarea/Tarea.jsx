@@ -12,7 +12,8 @@ import iconosTarea from "../../assets/data/iconos-tarea";
 
 const Tarea = ({ tarea, index, nombreColumna }) => {
 
-  const { deleteTareaCtxt } = useDataContext();
+  const { deleteTareaCtxt, tareas, setTareas } = useDataContext();
+  const id = tarea.id;
   const [nombre, setNombre] = useState(tarea.nombreTarea);
   const [descripcion, setDescripcion] = useState(tarea.descripcion);
   const [estimacion, setEstimacion] = useState(tarea.estimacion);
@@ -25,8 +26,18 @@ const Tarea = ({ tarea, index, nombreColumna }) => {
     handleClickOpen(); 
   }
 
+  const updateContext = (atributo, nuevoValor) => {
+    const tareaIndex = tareas.findIndex(tarea => tarea.id === id);
+    if (tareaIndex !== -1) {
+        const nuevasTareas = [...tareas];
+        nuevasTareas[tareaIndex][atributo] = nuevoValor;
+        setTareas(nuevasTareas);
+    }
+  }
+
   // Persistir en BD
   const updateNombreBD = async (nuevoNombre) => {
+    updateContext('nombreTarea', nuevoNombre);
     await updateDoc(tareaRef, {
       nombreTarea: nuevoNombre,
     });
@@ -34,6 +45,7 @@ const Tarea = ({ tarea, index, nombreColumna }) => {
 
   const updateDescripcionBD = async (nuevaDescripcion) => {
     if (nuevaDescripcion !== undefined) {
+      updateContext('descripcion', nuevaDescripcion);
       await updateDoc(tareaRef, {
         descripcion: nuevaDescripcion,
       });
@@ -42,6 +54,7 @@ const Tarea = ({ tarea, index, nombreColumna }) => {
 
   const updateEstimacionBD = async (nuevaEstimacion) => {
     if (nuevaEstimacion !== undefined) {
+      updateContext('estimacion', nuevaEstimacion);
       await updateDoc(tareaRef, {
         estimacion: nuevaEstimacion,
       });
@@ -50,6 +63,7 @@ const Tarea = ({ tarea, index, nombreColumna }) => {
 
   const updateIconoBD = async (nuevoIcono) => {
     if (nuevoIcono !== undefined) {
+      updateContext('icono', nuevoIcono);
       await updateDoc(tareaRef, {
         icono: nuevoIcono,
       });

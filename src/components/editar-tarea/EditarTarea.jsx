@@ -99,7 +99,6 @@ function EditarTarea ({
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onClose();
     setNombreTarea(nombre)
     updateNombreBD(nombre);
     setDescripcion(texto);
@@ -109,6 +108,7 @@ function EditarTarea ({
     setIconoTarea(icono);
     updateIconoBD(icono);
     setSrcIconoTarea(iconosTarea[icono]);
+    onClose();
   };
 
   return (

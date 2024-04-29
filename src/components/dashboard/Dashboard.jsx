@@ -54,19 +54,24 @@ function Dashboard() {
       : proyectos.length === 0 ? (
         /* Dashboard vacio */
         <>
-        {proyectos.length===0 && (
-          <div className="dashboard-vacio">
-            <Button 
-              className="btn-dashboard-vacio"
-              variant="contained" 
-              onClick={handleClickOpen}
-              >
-              <ViewKanbanOutlinedIcon className="icon-crear-tablero" sx={{ color: 'var(--secondary-color)'}} />
-              <h1 className="h1-crear-tablero">Crear tablero</h1>
-              <h3 className="h3-crear-tablero">Cree un tablero para empezar a gestionar su proyecto</h3>
-            </Button>
-          </div>
-        )}
+          {proyectos.length===0 && (
+            <div className="dashboard-vacio">
+              <Button 
+                className="btn-dashboard-vacio"
+                variant="contained" 
+                onClick={handleClickOpen}
+                >
+                <ViewKanbanOutlinedIcon className="icon-crear-tablero" sx={{ color: 'var(--secondary-color)'}} />
+                <h1 className="h1-crear-tablero">Crear tablero</h1>
+                <h3 className="h3-crear-tablero">Cree un tablero para empezar a gestionar su proyecto</h3>
+              </Button>
+            </div>
+          )}
+          <NuevoProyecto 
+            open={open}
+            onClose={handleClose}
+            numProyectos={proyectos.length}
+          />
         </>
       ) : (
         <div className="d-flex dashboard-container">
