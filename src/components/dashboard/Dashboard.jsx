@@ -50,8 +50,25 @@ function Dashboard() {
 
   return (
     <>
-      {!loading && (
-      <>
+      {loading ? (<></>) 
+      : proyectos.length === 0 ? (
+        /* Dashboard vacio */
+        <>
+        {proyectos.length===0 && (
+          <div className="dashboard-vacio">
+            <Button 
+              className="btn-dashboard-vacio"
+              variant="contained" 
+              onClick={handleClickOpen}
+              >
+              <ViewKanbanOutlinedIcon className="icon-crear-tablero" sx={{ color: 'var(--secondary-color)'}} />
+              <h1 className="h1-crear-tablero">Crear tablero</h1>
+              <h3 className="h3-crear-tablero">Cree un tablero para empezar a gestionar su proyecto</h3>
+            </Button>
+          </div>
+        )}
+        </>
+      ) : (
         <div className="d-flex dashboard-container">
           <div className="proy-list">
             {proyectos.map((proyecto, index) => (
@@ -74,23 +91,7 @@ function Dashboard() {
             />
           </div>
         </div>
-
-        {/* Dashboard vacio */}
-        {proyectos.length===0 && (
-          <div className="dashboard-vacio">
-            <Button 
-              className="btn-dashboard-vacio"
-              variant="contained" 
-              onClick={handleClickOpen}
-            >
-              <ViewKanbanOutlinedIcon className="icon-crear-tablero" sx={{ color: 'var(--secondary-color)'}} />
-              <h1 className="h1-crear-tablero">Crear tablero</h1>
-              <h3 className="h3-crear-tablero">Cree un tablero para empezar a gestionar su proyecto</h3>
-            </Button>
-          </div>
-        )}
-      </>
-      )}
+      )} 
     </>
   );
 };
