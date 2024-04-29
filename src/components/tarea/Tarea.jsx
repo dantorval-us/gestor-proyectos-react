@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { collection, deleteDoc, doc, getDoc, getDocs, query, updateDoc, where } from "firebase/firestore";
 import { Draggable } from "react-beautiful-dnd";
 import NotesIcon from '@mui/icons-material/Notes';
@@ -10,7 +10,7 @@ import MenuUD from "../menu-UD/MenuUD";
 import EditarTarea from "../editar-tarea/EditarTarea";
 import iconosTarea from "../../assets/data/iconos-tarea";
 
-const Tarea = ({ tarea, index }) => {
+const Tarea = ({ tarea, index, nombreColumna }) => {
 
   const { deleteTareaCtxt } = useDataContext();
   const [nombre, setNombre] = useState(tarea.nombreTarea);
@@ -117,7 +117,11 @@ const Tarea = ({ tarea, index }) => {
             {...provided.draggableProps}
             {...provided.dragHandleProps}
             ref={provided.innerRef}
-            className=" tarjeta"
+            className={`
+              tarjeta 
+              ${nombreColumna === 'Finished' || nombreColumna === 'Finalizada' ? 'tarea-finalizada' : ''}
+              ${nombreColumna === 'Backlog' ? 'tarea-backlog' : ''}
+            `}
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
           >

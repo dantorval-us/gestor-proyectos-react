@@ -135,7 +135,7 @@ const Columna = ({ columna, tareas, tareasRef }) => {
             >
               { // Reordena tareas antes de renderizarlas
               tareas.sort((a, b) => a.posicion - b.posicion).map((tarea, index) => (
-                <Tarea key={tarea.id} tarea={tarea} index={index}/>
+                <Tarea key={tarea.id} tarea={tarea} index={index} nombreColumna={columna.nombre} />
               ))}
               {provided.placeholder}
             </div>
