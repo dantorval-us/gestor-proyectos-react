@@ -59,6 +59,19 @@ header a:hover {
   resize: none;
 }
 
+.estimacion-tarea {
+  width: 1.2rem;
+  height: 1.2rem;
+  background-color: var(--secondary-color);
+  border-radius: 50%; /* Esto hace que el div sea un círculo */
+  color: white;
+  font-size: 0.9rem;
+  font-weight: bold;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
 .MuiDialogActions-root {
   margin: 0 1rem 1rem 1rem;
 }

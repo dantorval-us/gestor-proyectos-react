@@ -45,5 +45,10 @@
 .notes-icon-desc-tarea {
   color: rgb(150, 150, 150);
   width: 1.1rem !important;
+}
+
+.atributos-tarea {
+  max-width: fit-content;
+  gap: 0.3rem;
   cursor: pointer;
 }

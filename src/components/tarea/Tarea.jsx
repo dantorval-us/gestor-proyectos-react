@@ -14,17 +14,13 @@ const Tarea = ({ tarea, index }) => {
   const { deleteTareaCtxt } = useDataContext();
   const [nombre, setNombre] = useState(tarea.nombreTarea);
   const [descripcion, setDescripcion] = useState(tarea.descripcion);
+  const [estimacion, setEstimacion] = useState(tarea.estimacion);
   const tareaRef = doc(db, `tareas/${tarea.id}`);
   
   /* UPDATES */
-
   const handleUpdate = async () => {
     handleClickOpen(); 
   }
-
-  const updateNombre = (event) => {
-    setNombre(event.target.value);
-  };
 
   // Persistir en BD
   const updateNombreBD = async (nuevoNombre) => {
@@ -38,6 +34,12 @@ const Tarea = ({ tarea, index }) => {
       descripcion: nuevaDescripcion,
     });
   }
+
+  const updateEstimacionBD = async (nuevaEstimacion) => {
+    await updateDoc(tareaRef, {
+      estimacion: nuevaEstimacion,
+    });
+  };
 
   /* DELETE */
   const handleDelete = () => {
@@ -108,11 +110,20 @@ const Tarea = ({ tarea, index }) => {
               <div className="h3-" onDoubleClick={handleUpdate}>
                 {nombre}
               </div>
-              {descripcion &&
+              <div className="d-flex atributos-tarea" onClick={handleUpdate}>
+                {estimacion>0 &&
+                  <div className="estimacion-tarea align-self-center">
+                      <Tooltip title="Estimación de la tarea.">
+                        <span>{estimacion}</span>
+                      </Tooltip>
+                  </div>
+                }
+                {descripcion &&
                 <Tooltip title="Esta tarea cuenta con una descripción.">
-                  <NotesIcon className="notes-icon-desc-tarea" onClick={handleUpdate}/>
+                  <NotesIcon className="notes-icon-desc-tarea"/>
                 </Tooltip>
               }
+              </div>
             </div>
             <div className="menu-ud align-self-start">
               {isMenuOpen && 
@@ -132,10 +143,13 @@ const Tarea = ({ tarea, index }) => {
         onClose={handleClose}
         nombreTarea={nombre}
         setNombreTarea={setNombre}
+        updateNombreBD={updateNombreBD}
         descripcion={descripcion}
         setDescripcion={setDescripcion}
-        updateNombreBD={updateNombreBD}
         updateDescripcionBD={updateDescripcionBD}
+        estimacionTarea={estimacion}
+        setEstimacionTarea={setEstimacion}
+        updateEstimacionBD={updateEstimacionBD}
       />
     </>
   );

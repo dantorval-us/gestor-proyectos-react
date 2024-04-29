@@ -1,3 +1,20 @@
+.menu-estimacion-tarea hr{
+  max-width: 92%;
+  margin: 0 auto;
+  border: 0;
+  border-top: 1px solid;
+}
+
+.menu-estimacion-tarea span{
+  font-weight: bold;
+  padding: 0 0.7rem;
+}
+
+.menu-estimacion-tarea hr:first-of-type {
+  opacity: 0;
+  padding-top: 0.5rem;
+}
+
 .nombre-tarea-dialog {
   display: flex;
   align-items: center;
@@ -23,3 +40,67 @@
 .textfield-edit-tarea {
   width: 100%;
 }
+
+.dc-tarea {
+  display: flex;
+}
+
+.dc-tarea-ppal {
+  flex: 0 0 75%;
+}
+
+.dc-tarea-ppal span{
+  padding-right: 0.5rem;
+  font-weight: bold;
+}
+
+.dc-tarea-ppal div:not(:last-child) {
+  margin-bottom: 1rem;
+}
+
+.dc-tarea-ppal .estimacion-tarea {
+  cursor: pointer;
+
+  &:hover {
+    opacity: 90%;
+  }
+}
+
+.estimacion-tarea-undefined {
+  cursor: pointer;
+
+  &:hover {
+    background-color: rgb(243, 243, 243);
+    border-radius: 5px;
+  }
+}
+
+.dc-tarea-lateral {
+  flex: 0 0 20%;
+}
+
+.dc-tarea-lateral span:first-child {
+  font-size: small;
+}
+
+.dc-tarea-lateral button {
+  background-color: rgb(245, 245, 245);
+  width: 100%;
+  display: flex;
+  text-align: left;
+  align-items: center;
+  margin-bottom: 5px;
+  border: none;
+  border-radius: 5px;
+  font-weight: bold;
+  gap: 0.4rem;
+
+  &:hover {
+    background-color: rgb(240, 240, 240);
+  }
+}
+
+.dc-tarea-lateral svg {
+  font-size: 1rem;
+}
+
