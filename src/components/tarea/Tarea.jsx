@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { collection, deleteDoc, doc, getDoc, getDocs, query, updateDoc, where } from "firebase/firestore";
 import { Draggable } from "react-beautiful-dnd";
 import NotesIcon from '@mui/icons-material/Notes';
@@ -8,6 +8,7 @@ import { db } from "../../firebase";
 import { useDataContext } from "../../context/DataContext";
 import MenuUD from "../menu-UD/MenuUD";
 import EditarTarea from "../editar-tarea/EditarTarea";
+import iconosTarea from "../../assets/data/iconos-tarea";
 
 const Tarea = ({ tarea, index }) => {
 
@@ -15,8 +16,10 @@ const Tarea = ({ tarea, index }) => {
   const [nombre, setNombre] = useState(tarea.nombreTarea);
   const [descripcion, setDescripcion] = useState(tarea.descripcion);
   const [estimacion, setEstimacion] = useState(tarea.estimacion);
+  const [icono, setIcono] = useState(tarea.icono);
+  const [srcIcono, setSrcIcono] = useState(null);
   const tareaRef = doc(db, `tareas/${tarea.id}`);
-  
+
   /* UPDATES */
   const handleUpdate = async () => {
     handleClickOpen(); 
@@ -30,15 +33,27 @@ const Tarea = ({ tarea, index }) => {
   };
 
   const updateDescripcionBD = async (nuevaDescripcion) => {
-    await updateDoc(tareaRef, {
-      descripcion: nuevaDescripcion,
-    });
+    if (nuevaDescripcion !== undefined) {
+      await updateDoc(tareaRef, {
+        descripcion: nuevaDescripcion,
+      });
+    }
   }
 
   const updateEstimacionBD = async (nuevaEstimacion) => {
-    await updateDoc(tareaRef, {
-      estimacion: nuevaEstimacion,
-    });
+    if (nuevaEstimacion !== undefined) {
+      await updateDoc(tareaRef, {
+        estimacion: nuevaEstimacion,
+      });
+    }
+  };
+
+  const updateIconoBD = async (nuevoIcono) => {
+    if (nuevoIcono !== undefined) {
+      await updateDoc(tareaRef, {
+        icono: nuevoIcono,
+      });
+    }
   };
 
   /* DELETE */
@@ -102,36 +117,51 @@ const Tarea = ({ tarea, index }) => {
             {...provided.draggableProps}
             {...provided.dragHandleProps}
             ref={provided.innerRef}
-            className="d-flex justify-content-between tarjeta"
+            className=" tarjeta"
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
           >
-            <div className="d-flex flex-column justify-content-center atrib-tarea">
-              <div className="h3-" onDoubleClick={handleUpdate}>
-                {nombre}
-              </div>
-              <div className="d-flex atributos-tarea" onClick={handleUpdate}>
-                {estimacion>0 &&
-                  <div className="estimacion-tarea align-self-center">
-                      <Tooltip title="Estimación de la tarea.">
-                        <span>{estimacion}</span>
-                      </Tooltip>
-                  </div>
+            <div className="tarjeta-content d-flex flex-column justify-content-center">
+
+              <div className="d-flex justify-content-between">
+                <div className="nombre-tarea h3- align-self-center" onDoubleClick={handleUpdate}>
+                  {nombre}
+                </div>
+                {isMenuOpen && 
+                  <MenuUD
+                    vertical={true}
+                    onUpdate={handleUpdate} 
+                    onDelete={handleDelete}
+                  />
                 }
-                {descripcion &&
-                <Tooltip title="Esta tarea cuenta con una descripción.">
-                  <NotesIcon className="notes-icon-desc-tarea"/>
-                </Tooltip>
-              }
               </div>
-            </div>
-            <div className="menu-ud align-self-start">
-              {isMenuOpen && 
-                <MenuUD
-                  vertical={true}
-                  onUpdate={handleUpdate} 
-                  onDelete={handleDelete}
-                />
+
+              {(icono || descripcion || estimacion>0) &&
+                <div className="atributos-tarea" onClick={handleUpdate}>
+                  {icono!=0 &&
+                    <div className="atributo-tarea-1">
+                        <Tooltip title={icono}>
+                          <div>
+                            <img src={iconosTarea[icono]} alt={icono} className="icono-tarea"/>
+                          </div>
+                        </Tooltip>
+                    </div>
+                  }
+                  {descripcion &&
+                    <div className="atributo-tarea-2">
+                      <Tooltip title="Esta tarea cuenta con una descripción">
+                        <NotesIcon className="notes-icon-desc-tarea"/>
+                      </Tooltip>
+                    </div>
+                  }
+                  {estimacion>0 &&
+                    <div className="estimacion-tarea atributo-tarea-3">
+                        <Tooltip title="Estimación de la tarea">
+                          <span>{estimacion}</span>
+                        </Tooltip>
+                    </div>
+                  }
+                </div>
               }
             </div>
           </div>
@@ -150,6 +180,11 @@ const Tarea = ({ tarea, index }) => {
         estimacionTarea={estimacion}
         setEstimacionTarea={setEstimacion}
         updateEstimacionBD={updateEstimacionBD}
+        iconoTarea={icono}
+        setIconoTarea={setIcono}
+        updateIconoBD={updateIconoBD}
+        srcIconoTarea={srcIcono}
+        setSrcIconoTarea={setSrcIcono}
       />
     </>
   );

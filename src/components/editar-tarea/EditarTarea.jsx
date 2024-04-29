@@ -8,20 +8,34 @@ import StyleIcon from '@mui/icons-material/Style';
 import ImageIcon from '@mui/icons-material/Image';
 import "./EditarTarea.css"
 import puntosEstimacion from "../../assets/data/puntos-estimacion";
+import iconosTarea from "../../assets/data/iconos-tarea";
+import Funcionalidad from "../../assets/images/icons/feature.png";
+import Estilo from "../../assets/images/icons/pintar.png";
+import Test from "../../assets/images/icons/test.png";
+import Bug from "../../assets/images/icons/oruga.png";
 
 function EditarTarea ({ 
   open, onClose, 
   nombreTarea, setNombreTarea, updateNombreBD, 
   descripcion, setDescripcion, updateDescripcionBD,
-  estimacionTarea, setEstimacionTarea, updateEstimacionBD
+  estimacionTarea, setEstimacionTarea, updateEstimacionBD,
+  iconoTarea, setIconoTarea, updateIconoBD,
+  srcIconoTarea, setSrcIconoTarea
 }) {
 
   const [nombre, setNombre] = useState(nombreTarea);
   const [texto, setTexto] = useState(descripcion);
   const [estimacion, setEstimacion] = useState(estimacionTarea);
+  const [icono, setIcono] = useState(iconoTarea);
+  const [srcIcono, setSrcIcono] = useState(srcIconoTarea);
   const [editNombre, setEditNombre] = useState(false);
   const [anchorElEstimacion, setAnchorElEstimacion] = useState(null);
+  const [anchorElIcono, setAnchorElIcono] = useState(null);
   const textFieldRef = useRef(null);
+
+  useEffect(() => {
+    setSrcIcono(iconosTarea[icono]);
+  }, [])
 
   useEffect(() => {
     setNombre(nombreTarea);
@@ -58,14 +72,29 @@ function EditarTarea ({
     setAnchorElEstimacion(event.currentTarget);
   };
 
+  const handleDesplegarIcono = (event) => {
+    event.preventDefault()
+    setAnchorElIcono(event.currentTarget);
+  };
+
   const handleSetEstimacion = (e) => {
     const puntos = e.target.value
     setEstimacion(puntos);
     handleEstimacionClose();
   }
-  
+
   const handleEstimacionClose = () => {
     setAnchorElEstimacion(null);
+  };
+
+  const handleSetIcono = (icono) => {
+    setSrcIcono(iconosTarea[icono]);
+    setIcono(icono);
+    handleIconoClose();
+  }
+
+  const handleIconoClose = () => {
+    setAnchorElIcono(null);
   };
 
   const handleSubmit = (e) => {
@@ -77,6 +106,9 @@ function EditarTarea ({
     updateDescripcionBD(texto);
     setEstimacionTarea(estimacion);
     updateEstimacionBD(estimacion);
+    setIconoTarea(icono);
+    updateIconoBD(icono);
+    setSrcIconoTarea(iconosTarea[icono]);
   };
 
   return (
@@ -135,7 +167,6 @@ function EditarTarea ({
                   minRows={3} 
                   placeholder="Añada una descripción más detallada..."
                   onChange={updateDescripcion}
-                  autoFocus 
                 />
               </div>
               <div className="d-flex">
@@ -145,18 +176,18 @@ function EditarTarea ({
                     {estimacion}
                   </div>
                 :
-                  <div className="estimacion-tarea-undefined" onClick={handleDesplegarEstimacion}>No definida.</div>
+                  <div className="atributo-tarea-undefined" onClick={handleDesplegarEstimacion}>No definida.</div>
                 }
               </div>
               <div className="d-flex">
                 <span>Icono:</span>
-                {/* {icono ?
-                  <div>
-                    {icono}
+                {icono ?
+                  <div className="icono-tarea" onClick={handleDesplegarIcono}>
+                    <img src={srcIcono} alt={icono} className="icono-tarea"/>
                   </div>
-                : */}
-                  <>No definido.</>
-                {/* } */}
+                :
+                  <div className="atributo-tarea-undefined" onClick={handleDesplegarIcono}>No definido.</div>
+                }
               </div>
             </div>
 
@@ -169,7 +200,7 @@ function EditarTarea ({
                 Estimación
               </button>
               <button
-                onClick={(e) => e.preventDefault()}
+                onClick={handleDesplegarIcono}
               >
                 <ImageIcon />
                 Icono
@@ -192,7 +223,7 @@ function EditarTarea ({
         anchorEl={anchorElEstimacion}
         open={Boolean(anchorElEstimacion)}
         onClose={handleEstimacionClose}
-        className="menu-estimacion-tarea"
+        className="menu-tarea"
       >
         <span>¿Cómo de compleja es esta tarea?</span>
         {puntosEstimacion.map((item) => (
@@ -203,6 +234,37 @@ function EditarTarea ({
             </MenuItem>
           ]
         ))} 
+      </Menu>
+
+      <Menu
+        anchorEl={anchorElIcono}
+        open={Boolean(anchorElIcono)}
+        onClose={handleIconoClose}
+        className="menu-tarea"
+      >
+        <span>Marca esta tarea con un icono</span>
+        <hr />
+        <MenuItem onClick={() => handleSetIcono(0)}>No marcar</MenuItem>
+        <hr />
+        <MenuItem onClick={() => handleSetIcono('Funcionalidad')}>
+          <img src={Funcionalidad} alt="Funcionalidad" className="icono-tarea"/>
+          Funcionalidad
+        </MenuItem>
+        <hr />
+        <MenuItem onClick={() => handleSetIcono('Estilo')}>
+          <img src={Estilo} alt="Estilo" className="icono-tarea"/>
+          Estilo
+        </MenuItem>
+        <hr />
+        <MenuItem onClick={() => handleSetIcono('Test')}>
+          <img src={Test} alt="Test" className="icono-tarea"/>
+          Test
+        </MenuItem>
+        <hr />
+        <MenuItem onClick={() => handleSetIcono('Bug')}>
+          <img src={Bug} alt="Bug" className="icono-tarea"/>
+          Bug
+        </MenuItem>
       </Menu>
     </>
   );

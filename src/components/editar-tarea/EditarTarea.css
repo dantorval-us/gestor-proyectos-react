@@ -1,18 +1,22 @@
-.menu-estimacion-tarea hr{
+.menu-tarea hr{
   max-width: 92%;
   margin: 0 auto;
   border: 0;
   border-top: 1px solid;
 }
 
-.menu-estimacion-tarea span{
+.menu-tarea span{
   font-weight: bold;
   padding: 0 0.7rem;
 }
 
-.menu-estimacion-tarea hr:first-of-type {
+.menu-tarea hr:first-of-type {
   opacity: 0;
   padding-top: 0.5rem;
+}
+
+.menu-tarea img{
+  padding-right: 0.5rem;
 }
 
 .nombre-tarea-dialog {
@@ -58,7 +62,8 @@
   margin-bottom: 1rem;
 }
 
-.dc-tarea-ppal .estimacion-tarea {
+.dc-tarea-ppal .estimacion-tarea,
+.dc-tarea-ppal .icono-tarea  {
   cursor: pointer;
 
   &:hover {
@@ -66,7 +71,7 @@
   }
 }
 
-.estimacion-tarea-undefined {
+.atributo-tarea-undefined {
   cursor: pointer;
 
   &:hover {
@@ -104,3 +109,6 @@
   font-size: 1rem;
 }
 
+.icono-tarea {
+  height: 1rem;
+}
