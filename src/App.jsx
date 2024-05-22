@@ -22,7 +22,7 @@ function App() {
     navigate("/login");
   };
 
-  const isLoginPage = useLocation().pathname=="/login" ? true : false;
+  const isLoginPage = useLocation().pathname==="/login" ? true : false;
 
   return (
     <div className="App">
@@ -32,7 +32,7 @@ function App() {
           <strong>
             Kanban B
             <span className="react-logo">
-              <img src={reactLogo} />
+              <img src={reactLogo} alt='logo-de-react'/>
             </span>
             ards
           </strong>

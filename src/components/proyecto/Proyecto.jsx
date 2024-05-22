@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState } from "react";
 import { deleteDoc, doc, updateDoc } from "firebase/firestore";
 import ViewKanbanOutlinedIcon from '@mui/icons-material/ViewKanbanOutlined';
 import "./Proyecto.css"
@@ -24,16 +24,6 @@ const Proyecto = ({ proyecto }) => {
     });
   }
 
-  const updateNombre = async (e) => {
-    setNombre(e.target.value);
-  }
-
-  const enterToUpdateNombre = async (e) => {
-    if (e.key === 'Enter') {
-      updateNombreBD(nombre);
-    }
-  }
-
   const handleUpdate = async () => {
     handleClickOpen(); 
   }
@@ -46,10 +36,6 @@ const Proyecto = ({ proyecto }) => {
   const handleDelete = async (e) => {
     e.preventDefault();
     deleteProyecto(proyecto.id);
-  }
-
-  const preventDefault = (e) => {
-    e.preventDefault();
   }
 
    /* Material UI Dialog */

@@ -15,7 +15,7 @@ const NuevoProyecto = ({ open, onClose, numProyectos }) => {
   }
   const usuario = auth.currentUser;
   const [proyecto, setProyecto] = useState(initialStateValuesProyecto);
-  const [campoTexto, setCampoTexto] = useState('');
+  const campoTexto = '';
   const [error, setError] = useState(false);
   const [selectedTextField, setSelectedTextField] = useState(false);
 

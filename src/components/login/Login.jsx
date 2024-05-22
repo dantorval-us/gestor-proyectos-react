@@ -32,7 +32,7 @@ function Login() {
               onClick={handleGoogleLogin}
             >
               <span className="google-logo">
-                <img src={googleLogo} />
+                <img src={googleLogo} alt="logo-de-google"/>
               </span>
               Continuar con Google
             </button>

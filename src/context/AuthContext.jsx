@@ -18,7 +18,7 @@ export function AuthProvider({ children }) {
 
   const [user, setUser] = useState(() => {
     const userGuardado = localStorage.getItem('user');
-    return userGuardado==undefined ? JSON.parse(userGuardado) : null;
+    return userGuardado===undefined ? JSON.parse(userGuardado) : null;
   });
 
   useEffect(() => {

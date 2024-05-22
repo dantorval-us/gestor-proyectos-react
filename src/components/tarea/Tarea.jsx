@@ -156,7 +156,7 @@ const Tarea = ({ tarea, index, nombreColumna }) => {
 
               {(icono || descripcion || estimacion>0) &&
                 <div className="atributos-tarea" onClick={handleUpdate}>
-                  {icono!=0 &&
+                  {icono!==0 &&
                     <div className="atributo-tarea-1">
                         <Tooltip title={icono}>
                           <div>
